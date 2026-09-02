@@ -11,13 +11,16 @@ const router = Router({ mergeParams: true });
 router.post("/", authenticate, authorize("ATTENDEE", "ORGANIZER"), bookingLimiter, validateRequest(createBookingSchema), bookingController.createBooking);
 export const bookingRoutes = router;
 
-// Flat router: mounted at /bookings and /users/bookings from routes/index.ts.
-// Fine-grained ownership (booking owner vs. event organizer vs. admin) is
-// enforced inside booking.service where the full booking + event record is
-// already being loaded, rather than duplicating a lookup here.
-const flatRouter = Router();
+// Mounted at exactly /users/bookings (spec 7.5: GET /api/v1/users/bookings)
+const myBookingsRouter = Router();
+myBookingsRouter.get("/", authenticate, bookingController.listMyBookings);
+export const bookingMyRoutes = myBookingsRouter;
 
-flatRouter.get("/my", authenticate, bookingController.listMyBookings);
+// Mounted at /bookings for the :id-scoped operations. Fine-grained ownership
+// (booking owner vs. event organizer vs. admin) is enforced inside
+// booking.service where the full booking + event record is already loaded,
+// rather than duplicating a lookup here.
+const flatRouter = Router();
 flatRouter.get("/:id", authenticate, bookingController.getBooking);
 flatRouter.patch("/:id/cancel", authenticate, validateRequest(cancelBookingSchema), bookingController.cancelBooking);
 flatRouter.post("/:id/check-in", authenticate, authorize("ORGANIZER", "ADMIN"), validateRequest(checkInSchema), bookingController.checkIn);
