@@ -1,0 +1,9 @@
+import { Request, Response, NextFunction, RequestHandler } from "express";
+
+// Wraps an async controller so thrown/rejected errors are forwarded to
+// Express's error-handling middleware instead of crashing the process.
+export function catchAsync(fn: RequestHandler) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+}
