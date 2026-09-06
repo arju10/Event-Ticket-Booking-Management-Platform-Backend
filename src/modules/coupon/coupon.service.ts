@@ -1,7 +1,8 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma";
 import { ApiError } from "@/utils/ApiError";
 import { prisma } from "@/config/db";
 import { writeAuditLog } from "@/lib/audit";
+import { CreateCouponInput } from "./coupon.interface";
 
 export interface CouponValidationResult {
   coupon: { id: string; code: string; discountType: string; discountValue: Prisma.Decimal; maxDiscount: Prisma.Decimal | null };
@@ -67,8 +68,8 @@ async function previewCoupon(code: string, userId: string, eventId: string, tick
   };
 }
 
-async function createCoupon(actorId: string, data: Record<string, unknown>) {
-  const coupon = await prisma.coupon.create({ data: data as Prisma.CouponCreateInput });
+async function createCoupon(actorId: string, data: CreateCouponInput) {
+  const coupon = await prisma.coupon.create({ data });
   await writeAuditLog({ userId: actorId, action: "COUPON_CREATE", entityType: "Coupon", entityId: coupon.id, newValues: data });
   return { id: coupon.id, code: coupon.code, discountValue: Number(coupon.discountValue), isActive: coupon.isActive, createdAt: coupon.createdAt };
 }

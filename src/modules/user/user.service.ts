@@ -2,6 +2,8 @@ import { prisma } from "@/config/db";
 import { ApiError } from "@/utils/ApiError";
 import { comparePassword, hashPassword } from "@/utils/password";
 import { cloudinary } from "@/config/cloudinary";
+import { Prisma } from "@/generated/prisma";
+import { UpdateMeInput } from "./user.interface";
 
 const PROFILE_SELECT = {
   id: true,
@@ -23,8 +25,12 @@ async function getMe(userId: string) {
   return user;
 }
 
-async function updateMe(userId: string, data: Record<string, unknown>) {
-  const user = await prisma.user.update({ where: { id: userId }, data, select: PROFILE_SELECT });
+async function updateMe(userId: string, data: UpdateMeInput) {
+  const user = await prisma.user.update({
+    where: { id: userId },
+    data: { ...data, notificationPreferences: data.notificationPreferences as Prisma.InputJsonValue | undefined },
+    select: PROFILE_SELECT,
+  });
   return user;
 }
 

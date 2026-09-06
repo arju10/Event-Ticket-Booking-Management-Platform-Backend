@@ -5,6 +5,7 @@ import { env } from "@/config/env";
 import { ApiError } from "@/utils/ApiError";
 import { writeAuditLog } from "@/lib/audit";
 import { InitiatePaymentResult } from "./payment.interface";
+import { Prisma } from "@/generated/prisma";
 
 function buildMockPaymentUrl(bookingId: string): string {
   // Dev-only stand-in used when no Stripe key is configured, so the booking
@@ -37,7 +38,7 @@ async function initiatePayment(bookingId: string, userId: string, method: string
 
   let paymentUrl: string;
   let transactionId: string | undefined;
-  let rawResponse: Record<string, unknown> = {};
+  let rawResponse: Prisma.InputJsonValue = {};
 
   if (env.stripe.secretKey && stripe) {
     const session = await stripe.checkout.sessions.create({
@@ -93,7 +94,7 @@ async function processPaymentOutcome(
     if (success) {
       await tx.payment.update({
         where: { id: booking.payment!.id },
-        data: { status: "SUCCESS", transactionId, rawResponse: rawResponse as any },
+        data: { status: "SUCCESS", transactionId, rawResponse: rawResponse as Prisma.InputJsonValue },
       });
       await tx.booking.update({ where: { id: bookingId }, data: { status: "CONFIRMED" } });
       // The reservation converts to a confirmed sale — move the held units

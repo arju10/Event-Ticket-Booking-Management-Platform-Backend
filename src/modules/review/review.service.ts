@@ -2,7 +2,7 @@ import { prisma } from "@/config/db";
 import { ApiError } from "@/utils/ApiError";
 import { buildPaginationMeta, parsePagination } from "@/types/common.types";
 import { writeAuditLog } from "@/lib/audit";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma";
 
 async function getReviewEventOwnerId(reviewId: string): Promise<string | null> {
   const review = await prisma.review.findFirst({

@@ -3,8 +3,8 @@ import { ApiError } from "@/utils/ApiError";
 import { generateSlug } from "@/utils/generateCodes";
 import { buildPaginationMeta, parsePagination } from "@/types/common.types";
 import { writeAuditLog } from "@/lib/audit";
-import { Prisma } from "@prisma/client";
-import { EventListFilters } from "./event.interface";
+import { Prisma } from "@/generated/prisma";
+import { EventListFilters, CreateEventInput, UpdateEventInput } from "./event.interface";
 
 const EVENT_CARD_SELECT = {
   id: true,
@@ -25,10 +25,29 @@ async function getOrganizerId(eventId: string): Promise<string | null> {
   return event?.organizerId ?? null;
 }
 
-async function createEvent(organizerId: string, data: Record<string, any>) {
+async function createEvent(organizerId: string, data: CreateEventInput) {
   const event = await prisma.event.create({
     data: {
-      ...data,
+      title: data.title,
+      description: data.description,
+      category: data.category,
+      subCategory: data.subCategory,
+      venue: data.venue,
+      address: data.address,
+      city: data.city,
+      country: data.country,
+      isVirtual: data.isVirtual,
+      virtualLink: data.virtualLink,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      timezone: data.timezone,
+      maxTicketsPerUser: data.maxTicketsPerUser,
+      isWaitlistEnabled: data.isWaitlistEnabled,
+      allowRefund: data.allowRefund,
+      ageRestriction: data.ageRestriction,
+      bannerImage: data.bannerImage,
+      galleryImages: data.galleryImages,
+      additionalInfo: data.additionalInfo as Prisma.InputJsonValue,
       slug: generateSlug(data.title),
       organizerId,
       status: "DRAFT",
@@ -137,14 +156,17 @@ async function getEventById(id: string) {
   };
 }
 
-async function updateEvent(id: string, data: Record<string, unknown>) {
+async function updateEvent(id: string, data: UpdateEventInput) {
   const event = await prisma.event.findFirst({ where: { id, deletedAt: null } });
   if (!event) throw ApiError.notFound("Event not found");
   if (event.startDate.getTime() <= Date.now()) {
     throw ApiError.conflict("Cannot edit an event that has already started");
   }
 
-  const updated = await prisma.event.update({ where: { id }, data });
+  const updated = await prisma.event.update({
+    where: { id },
+    data: { ...data, additionalInfo: data.additionalInfo as Prisma.InputJsonValue | undefined },
+  });
   return updated;
 }
 

@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+import { UserRole } from "@/generated/prisma";
 
 // Augments Express Request with the authenticated user, set by the
 // `authenticate` middleware after verifying the JWT.
