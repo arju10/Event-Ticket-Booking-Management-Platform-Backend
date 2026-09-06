@@ -18,6 +18,7 @@ export const env = {
   apiVersion: process.env.API_VERSION ?? "v1",
 
   databaseUrl: required("DATABASE_URL"),
+  directUrl: process.env.DIRECT_URL ?? "",
 
   jwt: {
     accessSecret: required("JWT_ACCESS_SECRET", "dev_access_secret"),
