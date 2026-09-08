@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { PaginationMeta } from "@/types/common.types";
+import { PaginationMeta } from "../types/common.types";
 
 // Every success response in the API goes through one of these two helpers so
 // the envelope shape (per the spec) is never hand-rolled in a controller.
