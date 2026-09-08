@@ -1,11 +1,11 @@
 import Stripe from "stripe";
-import { prisma } from "@/config/db";
-import { stripe } from "@/config/stripe";
-import { env } from "@/config/env";
-import { ApiError } from "@/utils/ApiError";
-import { writeAuditLog } from "@/lib/audit";
+import { prisma } from "../../config/db";
+import { stripe } from "../../config/stripe";
+import { env } from "../../config/env";
+import { ApiError } from "../../utils/ApiError";
+import { writeAuditLog } from "../../lib/audit";
 import { InitiatePaymentResult } from "./payment.interface";
-import { Prisma } from "@/generated/prisma";
+import { Prisma } from "../../generated/prisma";
 
 function buildMockPaymentUrl(bookingId: string): string {
   // Dev-only stand-in used when no Stripe key is configured, so the booking

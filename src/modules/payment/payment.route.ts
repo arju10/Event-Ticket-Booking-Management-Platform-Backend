@@ -1,8 +1,8 @@
 import { Router, raw } from "express";
 import { paymentController } from "./payment.controller";
-import { authenticate } from "@/middlewares/authenticate";
-import { validateRequest } from "@/middlewares/validateRequest";
-import { paymentLimiter } from "@/middlewares/rateLimiter";
+import { authenticate } from "../../middlewares/authenticate";
+import { validateRequest } from "../../middlewares/validateRequest";
+import { paymentLimiter } from "../../middlewares/rateLimiter";
 import { initiatePaymentSchema } from "./payment.validation";
 
 const router = Router();
