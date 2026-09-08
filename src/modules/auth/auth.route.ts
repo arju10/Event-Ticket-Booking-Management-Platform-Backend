@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { authController } from "./auth.controller";
-import { validateRequest } from "@/middlewares/validateRequest";
-import { authenticate } from "@/middlewares/authenticate";
-import { authLimiter } from "@/middlewares/rateLimiter";
+import { validateRequest } from "../../middlewares/validateRequest";
+import { authenticate } from "../../middlewares/authenticate";
+import { authLimiter } from "../../middlewares/rateLimiter";
 import {
   registerSchema,
   loginSchema,

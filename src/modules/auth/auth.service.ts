@@ -1,12 +1,12 @@
-import { prisma } from "@/config/db";
-import { ApiError } from "@/utils/ApiError";
-import { hashPassword, comparePassword } from "@/utils/password";
-import { signAccessToken, signRefreshToken, verifyRefreshToken, JwtPayload } from "@/utils/jwt";
+import { prisma } from "../../config/db";
+import { ApiError } from "../../utils/ApiError";
+import { hashPassword, comparePassword } from "../../utils/password";
+import { signAccessToken, signRefreshToken, verifyRefreshToken, JwtPayload } from "../../utils/jwt";
 import { RegisterInput, LoginInput } from "./auth.validation";
 import { AuthTokens, AuthUserResponse } from "./auth.interface";
 import jwt from "jsonwebtoken";
-import { env } from "@/config/env";
-import { logger } from "@/utils/logger";
+import { env } from "../../config/env";
+import { logger } from "../../utils/logger";
 
 function toAuthUser(user: { id: string; email: string; name: string; role: JwtPayload["role"] }): AuthUserResponse {
   return { id: user.id, email: user.email, name: user.name, role: user.role };
