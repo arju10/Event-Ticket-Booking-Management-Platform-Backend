@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { ApiError } from "@/utils/ApiError";
-import { logger } from "@/utils/logger";
-import { Prisma } from "@/generated/prisma";
+import { ApiError } from "../utils/ApiError";
+import { logger } from "../utils/logger";
+import { Prisma } from "../generated/prisma";
 
 // Centralized error handler — must be registered last in app.ts.
 // Converts ApiError, Zod, and known Prisma errors into the standard envelope;

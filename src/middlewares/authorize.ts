@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { UserRole } from "@/generated/prisma";
-import { ApiError } from "@/utils/ApiError";
+import { UserRole } from "../generated/prisma";
+import { ApiError } from "../utils/ApiError";
 
 // Role gate. Must run after `authenticate`.
 export function authorize(...roles: UserRole[]) {
