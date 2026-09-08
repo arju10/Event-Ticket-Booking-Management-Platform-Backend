@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { ticketTierController } from "./ticketTier.controller";
-import { authenticate } from "@/middlewares/authenticate";
-import { authorize } from "@/middlewares/authorize";
-import { isResourceOwner } from "@/middlewares/isResourceOwner";
-import { validateRequest } from "@/middlewares/validateRequest";
+import { authenticate } from "../../middlewares/authenticate";
+import { authorize } from "../../middlewares/authorize";
+import { isResourceOwner } from "../../middlewares/isResourceOwner";
+import { validateRequest } from "../../middlewares/validateRequest";
 import { createTicketTierSchema, updateTicketTierSchema } from "./ticketTier.validation";
 import { ticketTierService } from "./ticketTier.service";
 

@@ -1,6 +1,6 @@
-import { prisma } from "@/config/db";
-import { ApiError } from "@/utils/ApiError";
-import { writeAuditLog } from "@/lib/audit";
+import { prisma } from "../../config/db";
+import { ApiError } from "../../utils/ApiError";
+import { writeAuditLog } from "../../lib/audit";
 import { CreateTicketTierInput, UpdateTicketTierInput } from "./ticketTier.interface";
 
 function withAvailable<T extends { quantity: number; sold: number; reserved: number }>(tier: T) {
