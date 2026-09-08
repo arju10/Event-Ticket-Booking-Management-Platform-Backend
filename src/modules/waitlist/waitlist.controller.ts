@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { catchAsync } from "@/utils/catchAsync";
-import { sendSuccess } from "@/utils/ApiResponse";
+import { catchAsync } from "../../utils/catchAsync";
+import { sendSuccess } from "../../utils/ApiResponse";
 import { waitlistService } from "./waitlist.service";
 
 const joinWaitlist = catchAsync(async (req: Request, res: Response) => {

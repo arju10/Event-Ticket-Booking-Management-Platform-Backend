@@ -1,7 +1,7 @@
-import { prisma } from "@/config/db";
-import { ApiError } from "@/utils/ApiError";
-import { env } from "@/config/env";
-import { writeAuditLog } from "@/lib/audit";
+import { prisma } from "../../config/db";
+import { ApiError } from "../../utils/ApiError";
+import { env } from "../../config/env";
+import { writeAuditLog } from "../../lib/audit";
 
 async function getEventOwnerId(eventId: string): Promise<string | null> {
   const event = await prisma.event.findFirst({ where: { id: eventId, deletedAt: null }, select: { organizerId: true } });

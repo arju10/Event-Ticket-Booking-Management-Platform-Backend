@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { waitlistController } from "./waitlist.controller";
-import { authenticate } from "@/middlewares/authenticate";
-import { authorize } from "@/middlewares/authorize";
-import { isResourceOwner } from "@/middlewares/isResourceOwner";
-import { validateRequest } from "@/middlewares/validateRequest";
+import { authenticate } from "../../middlewares/authenticate";
+import { authorize } from "../../middlewares/authorize";
+import { isResourceOwner } from "../../middlewares/isResourceOwner";
+import { validateRequest } from "../../middlewares/validateRequest";
 import { joinWaitlistSchema } from "./waitlist.validation";
 import { waitlistService } from "./waitlist.service";
 
