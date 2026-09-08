@@ -1,8 +1,8 @@
-import { prisma } from "@/config/db";
-import { ApiError } from "@/utils/ApiError";
-import { buildPaginationMeta, parsePagination } from "@/types/common.types";
-import { writeAuditLog } from "@/lib/audit";
-import { Prisma } from "@/generated/prisma";
+import { prisma } from "../../config/db";
+import { ApiError } from "../../utils/ApiError";
+import { buildPaginationMeta, parsePagination } from "../../types/common.types";
+import { writeAuditLog } from "../../lib/audit";
+import { Prisma } from "../../generated/prisma";
 
 async function listUsers(filters: { role?: string; isActive?: boolean; page: number; limit: number; search?: string }) {
   const { page, limit, skip } = parsePagination(filters as unknown as Record<string, unknown>);

@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { adminController } from "./admin.controller";
-import { authenticate } from "@/middlewares/authenticate";
-import { authorize } from "@/middlewares/authorize";
-import { validateRequest } from "@/middlewares/validateRequest";
+import { authenticate } from "../../middlewares/authenticate";
+import { authorize } from "../../middlewares/authorize";
+import { validateRequest } from "../../middlewares/validateRequest";
 import { updateUserRoleSchema, suspendUserSchema } from "./admin.validation";
 import { couponAdminRoutes } from "../coupon/coupon.route";
 
