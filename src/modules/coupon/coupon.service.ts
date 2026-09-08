@@ -1,7 +1,7 @@
-import { Prisma } from "@/generated/prisma";
-import { ApiError } from "@/utils/ApiError";
-import { prisma } from "@/config/db";
-import { writeAuditLog } from "@/lib/audit";
+import { Prisma } from "../../generated/prisma";
+import { ApiError } from "../../utils/ApiError";
+import { prisma } from "../../config/db";
+import { writeAuditLog } from "../../lib/audit";
 import { CreateCouponInput } from "./coupon.interface";
 
 export interface CouponValidationResult {

@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { couponController } from "./coupon.controller";
-import { authenticate } from "@/middlewares/authenticate";
-import { authorize } from "@/middlewares/authorize";
-import { validateRequest } from "@/middlewares/validateRequest";
+import { authenticate } from "../../middlewares/authenticate";
+import { authorize } from "../../middlewares/authorize";
+import { validateRequest } from "../../middlewares/validateRequest";
 import { validateCouponSchema, createCouponSchema } from "./coupon.validation";
 
 const router = Router();

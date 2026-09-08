@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { catchAsync } from "@/utils/catchAsync";
-import { sendSuccess } from "@/utils/ApiResponse";
+import { catchAsync } from "../../utils/catchAsync";
+import { sendSuccess } from "../../utils/ApiResponse";
 import { couponService } from "./coupon.service";
 
 const validateCoupon = catchAsync(async (req: Request, res: Response) => {
