@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { eventController } from "./event.controller";
-import { authenticate } from "@/middlewares/authenticate";
-import { authorize } from "@/middlewares/authorize";
-import { isResourceOwner } from "@/middlewares/isResourceOwner";
-import { validateRequest } from "@/middlewares/validateRequest";
+import { authenticate } from "../../middlewares/authenticate";
+import { authorize } from "../../middlewares/authorize";
+import { isResourceOwner } from "../../middlewares/isResourceOwner";
+import { validateRequest } from "../../middlewares/validateRequest";
 import { createEventSchema, updateEventSchema, updateEventStatusSchema } from "./event.validation";
 import { eventService } from "./event.service";
 import { ticketTierRoutes } from "../ticketTier/ticketTier.route";

@@ -1,9 +1,9 @@
-import { prisma } from "@/config/db";
-import { ApiError } from "@/utils/ApiError";
-import { generateSlug } from "@/utils/generateCodes";
-import { buildPaginationMeta, parsePagination } from "@/types/common.types";
-import { writeAuditLog } from "@/lib/audit";
-import { Prisma } from "@/generated/prisma";
+import { prisma } from "../../config/db";
+import { ApiError } from "../../utils/ApiError";
+import { generateSlug } from "../../utils/generateCodes";
+import { buildPaginationMeta, parsePagination } from "../../types/common.types";
+import { writeAuditLog } from "../../lib/audit";
+import { Prisma } from "../../generated/prisma";
 import { EventListFilters, CreateEventInput, UpdateEventInput } from "./event.interface";
 
 const EVENT_CARD_SELECT = {
