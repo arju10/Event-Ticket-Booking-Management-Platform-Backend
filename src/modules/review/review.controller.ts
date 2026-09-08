@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { catchAsync } from "@/utils/catchAsync";
-import { sendSuccess, sendPaginated } from "@/utils/ApiResponse";
+import { catchAsync } from "../../utils/catchAsync";
+import { sendSuccess, sendPaginated } from "../../utils/ApiResponse";
 import { reviewService } from "./review.service";
 
 const createReview = catchAsync(async (req: Request, res: Response) => {

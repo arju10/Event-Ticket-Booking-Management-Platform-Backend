@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { reviewController } from "./review.controller";
-import { authenticate } from "@/middlewares/authenticate";
-import { authorize } from "@/middlewares/authorize";
-import { isResourceOwner } from "@/middlewares/isResourceOwner";
-import { validateRequest } from "@/middlewares/validateRequest";
+import { authenticate } from "../../middlewares/authenticate";
+import { authorize } from "../../middlewares/authorize";
+import { isResourceOwner } from "../../middlewares/isResourceOwner";
+import { validateRequest } from "../../middlewares/validateRequest";
 import { createReviewSchema, respondToReviewSchema } from "./review.validation";
 import { reviewService } from "./review.service";
 
