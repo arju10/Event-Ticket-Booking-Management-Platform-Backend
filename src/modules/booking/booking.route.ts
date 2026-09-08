@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { bookingController } from "./booking.controller";
-import { authenticate } from "@/middlewares/authenticate";
-import { authorize } from "@/middlewares/authorize";
-import { validateRequest } from "@/middlewares/validateRequest";
-import { bookingLimiter } from "@/middlewares/rateLimiter";
+import { authenticate } from "../../middlewares/authenticate";
+import { authorize } from "../../middlewares/authorize";
+import { validateRequest } from "../../middlewares/validateRequest";
+import { bookingLimiter } from "../../middlewares/rateLimiter";
 import { createBookingSchema, cancelBookingSchema, checkInSchema } from "./booking.validation";
 
 // Nested router: mounted at /events/:eventId/book (POST only) from event.route.ts

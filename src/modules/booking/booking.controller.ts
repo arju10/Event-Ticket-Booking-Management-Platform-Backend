@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { catchAsync } from "@/utils/catchAsync";
-import { sendSuccess, sendPaginated } from "@/utils/ApiResponse";
+import { catchAsync } from "../../utils/catchAsync";
+import { sendSuccess, sendPaginated } from "../../utils/ApiResponse";
 import { bookingService } from "./booking.service";
 import { paymentService } from "../payment/payment.service";
 

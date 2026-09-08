@@ -1,13 +1,13 @@
-import { prisma } from "@/config/db";
-import { ApiError } from "@/utils/ApiError";
-import { generateBookingNumber } from "@/utils/generateCodes";
-import { buildPaginationMeta, parsePagination } from "@/types/common.types";
-import { writeAuditLog } from "@/lib/audit";
+import { prisma } from "../../config/db";
+import { ApiError } from "../../utils/ApiError";
+import { generateBookingNumber } from "../../utils/generateCodes";
+import { buildPaginationMeta, parsePagination } from "../../types/common.types";
+import { writeAuditLog } from "../../lib/audit";
 import { validateAndPriceCoupon } from "../coupon/coupon.service";
 import { getRefundPercent, BOOKING_INCLUDE } from "./booking.constant";
 import { CreateBookingInput } from "./booking.interface";
-import { env } from "@/config/env";
-import { Prisma } from "@/generated/prisma";
+import { env } from "../../config/env";
+import { Prisma } from "../../generated/prisma";
 import { offerNextWaitlistEntry } from "../waitlist/waitlist.service";
 
 interface TierRow {
