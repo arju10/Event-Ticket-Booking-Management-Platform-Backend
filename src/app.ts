@@ -1,12 +1,12 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import { env } from "@/config/env";
-import { apiRoutes } from "@/routes";
-import { paymentWebhookRoute } from "@/modules/payment/payment.route";
-import { generalLimiter } from "@/middlewares/rateLimiter";
-import { errorHandler } from "@/middlewares/errorHandler";
-import { notFound } from "@/middlewares/notFound";
+import { env } from "./config/env";
+import { apiRoutes } from "./routes";
+import { paymentWebhookRoute } from "./modules/payment/payment.route";
+import { generalLimiter } from "./middlewares/rateLimiter";
+import { errorHandler } from "./middlewares/errorHandler";
+import { notFound } from "./middlewares/notFound";
 
 const app = express();
 

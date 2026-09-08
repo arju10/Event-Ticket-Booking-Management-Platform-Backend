@@ -1,8 +1,8 @@
 import app from "./app";
-import { env } from "@/config/env";
-import { prisma } from "@/config/db";
-import { logger } from "@/utils/logger";
-import { startBackgroundJobs } from "@/jobs/expireStaleBookings.job";
+import { env } from "./config/env";
+import { prisma } from "./config/db";
+import { logger } from "./utils/logger";
+import { startBackgroundJobs } from "./jobs/expireStaleBookings.job";
 
 async function bootstrap() {
   try {

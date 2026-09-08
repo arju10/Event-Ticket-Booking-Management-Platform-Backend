@@ -1,6 +1,6 @@
-import { bookingService } from "@/modules/booking/booking.service";
-import { waitlistService } from "@/modules/waitlist/waitlist.service";
-import { logger } from "@/utils/logger";
+import { bookingService } from "../modules/booking/booking.service";
+import { waitlistService } from "../modules/waitlist/waitlist.service";
+import { logger } from "../utils/logger";
 
 // Spec 8.2 + 8.4: releases inventory held by abandoned PENDING checkouts and
 // lapsed waitlist offers, so nothing is permanently locked by someone who
