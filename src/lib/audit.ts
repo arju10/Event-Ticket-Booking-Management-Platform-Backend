@@ -1,5 +1,5 @@
-import { prisma } from "@/config/db";
-import { AuditAction, Prisma } from "@/generated/prisma";
+import { prisma } from "../config/db";
+import { AuditAction, Prisma } from "../generated/prisma";
 
 interface WriteAuditLogInput {
   userId: string;
