@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { catchAsync } from "@/utils/catchAsync";
-import { sendSuccess } from "@/utils/ApiResponse";
-import { ApiError } from "@/utils/ApiError";
+import { catchAsync } from "../../utils/catchAsync";
+import { sendSuccess } from "../../utils/ApiResponse";
+import { ApiError } from "../../utils/ApiError";
 import { userService } from "./user.service";
 
 const getMe = catchAsync(async (req: Request, res: Response) => {
