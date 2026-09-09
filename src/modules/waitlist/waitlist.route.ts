@@ -9,10 +9,24 @@ import { waitlistService } from "./waitlist.service";
 
 // Nested router: mounted at /events/:eventId/waitlist
 const router = Router({ mergeParams: true });
-const ownsEvent = isResourceOwner((req) => waitlistService.getEventOwnerId(req.params.eventId));
+const ownsEvent = isResourceOwner((req) =>
+  waitlistService.getEventOwnerId(req.params.eventId),
+);
 
-router.post("/", authenticate, authorize("ATTENDEE", "ORGANIZER"), validateRequest(joinWaitlistSchema), waitlistController.joinWaitlist);
-router.get("/", authenticate, authorize("ORGANIZER", "ADMIN"), ownsEvent, waitlistController.getEventWaitlist);
+router.post(
+  "/",
+  authenticate,
+  authorize("ATTENDEE", "ORGANIZER"),
+  validateRequest(joinWaitlistSchema),
+  waitlistController.joinWaitlist,
+);
+router.get(
+  "/",
+  authenticate,
+  authorize("ORGANIZER", "ADMIN"),
+  ownsEvent,
+  waitlistController.getEventWaitlist,
+);
 
 export const waitlistRoutes = router;
 

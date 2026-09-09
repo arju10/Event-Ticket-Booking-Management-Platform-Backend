@@ -25,11 +25,16 @@ interface TierRow {
 }
 
 async function getBookingOwnerId(bookingId: string): Promise<string | null> {
-  const booking = await prisma.booking.findFirst({ where: { id: bookingId, deletedAt: null }, select: { userId: true } });
+  const booking = await prisma.booking.findFirst({
+    where: { id: bookingId, deletedAt: null },
+    select: { userId: true },
+  });
   return booking?.userId ?? null;
 }
 
-async function getBookingEventOwnerId(bookingId: string): Promise<string | null> {
+async function getBookingEventOwnerId(
+  bookingId: string,
+): Promise<string | null> {
   const booking = await prisma.booking.findFirst({
     where: { id: bookingId, deletedAt: null },
     select: { event: { select: { organizerId: true } } },
@@ -40,10 +45,17 @@ async function getBookingEventOwnerId(bookingId: string): Promise<string | null>
 // ============================================================
 // CREATE BOOKING — the concurrency-critical checkout transaction (spec 8.1)
 // ============================================================
-async function createBooking(eventId: string, userId: string, input: CreateBookingInput) {
-  const event = await prisma.event.findFirst({ where: { id: eventId, deletedAt: null } });
+async function createBooking(
+  eventId: string,
+  userId: string,
+  input: CreateBookingInput,
+) {
+  const event = await prisma.event.findFirst({
+    where: { id: eventId, deletedAt: null },
+  });
   if (!event) throw ApiError.notFound("Event not found");
-  if (event.status !== "PUBLISHED") throw ApiError.unprocessable("Event is not open for booking");
+  if (event.status !== "PUBLISHED")
+    throw ApiError.unprocessable("Event is not open for booking");
 
   const booking = await prisma.$transaction(async (tx) => {
     // Steps 1-4 of spec 8.1, collapsed into ONE atomic conditional UPDATE:
@@ -61,35 +73,61 @@ async function createBooking(eventId: string, userId: string, input: CreateBooki
     `;
 
     if (rows.length === 0) {
-      const tier = await tx.ticketTier.findFirst({ where: { id: input.ticketTierId, deletedAt: null } });
+      const tier = await tx.ticketTier.findFirst({
+        where: { id: input.ticketTierId, deletedAt: null },
+      });
       if (!tier) throw ApiError.notFound("Ticket tier not found");
       const available = tier.quantity - tier.sold - tier.reserved;
-      throw new ApiError(409, "Not enough tickets available", "INSUFFICIENT_TICKETS", [
-        { field: input.ticketTierId, message: `Only ${available} ticket(s) remaining` },
-      ]);
+      throw new ApiError(
+        409,
+        "Not enough tickets available",
+        "INSUFFICIENT_TICKETS",
+        [
+          {
+            field: input.ticketTierId,
+            message: `Only ${available} ticket(s) remaining`,
+          },
+        ],
+      );
     }
 
     const tier = rows[0];
-    if (tier.eventId !== eventId) throw ApiError.badRequest("Ticket tier does not belong to this event");
+    if (tier.eventId !== eventId)
+      throw ApiError.badRequest("Ticket tier does not belong to this event");
 
     const now = new Date();
-    if ((tier.saleStartDate && now < tier.saleStartDate) || (tier.saleEndDate && now > tier.saleEndDate)) {
-      throw ApiError.unprocessable("Ticket sales are not currently open for this tier", "SALES_CLOSED");
+    if (
+      (tier.saleStartDate && now < tier.saleStartDate) ||
+      (tier.saleEndDate && now > tier.saleEndDate)
+    ) {
+      throw ApiError.unprocessable(
+        "Ticket sales are not currently open for this tier",
+        "SALES_CLOSED",
+      );
     }
 
-    if (input.quantity < tier.minPurchase || input.quantity > tier.maxPurchase) {
-      throw ApiError.badRequest(`Quantity must be between ${tier.minPurchase} and ${tier.maxPurchase} for this tier`);
+    if (
+      input.quantity < tier.minPurchase ||
+      input.quantity > tier.maxPurchase
+    ) {
+      throw ApiError.badRequest(
+        `Quantity must be between ${tier.minPurchase} and ${tier.maxPurchase} for this tier`,
+      );
     }
 
     const existingAgg = await tx.booking.aggregate({
-      where: { userId, eventId, status: { in: ["PENDING", "CONFIRMED", "CHECKED_IN"] } },
+      where: {
+        userId,
+        eventId,
+        status: { in: ["PENDING", "CONFIRMED", "CHECKED_IN"] },
+      },
       _sum: { quantity: true },
     });
     const alreadyHeld = existingAgg._sum.quantity ?? 0;
     if (alreadyHeld + input.quantity > event.maxTicketsPerUser) {
       throw ApiError.unprocessable(
         `You can book at most ${event.maxTicketsPerUser} tickets for this event`,
-        "MAX_TICKETS_EXCEEDED"
+        "MAX_TICKETS_EXCEEDED",
       );
     }
 
@@ -98,9 +136,17 @@ async function createBooking(eventId: string, userId: string, input: CreateBooki
     let discountAmount = 0;
 
     if (input.couponCode) {
-      const couponResult = await validateAndPriceCoupon(tx, input.couponCode, userId, totalPrice);
+      const couponResult = await validateAndPriceCoupon(
+        tx,
+        input.couponCode,
+        userId,
+        totalPrice,
+      );
       discountAmount = couponResult.discountAmount;
-      await tx.coupon.update({ where: { id: couponResult.coupon.id }, data: { usedCount: { increment: 1 } } });
+      await tx.coupon.update({
+        where: { id: couponResult.coupon.id },
+        data: { usedCount: { increment: 1 } },
+      });
     }
 
     const finalAmount = totalPrice - discountAmount;
@@ -126,8 +172,14 @@ async function createBooking(eventId: string, userId: string, input: CreateBooki
     });
 
     await writeAuditLog(
-      { userId, action: "CREATE", entityType: "Booking", entityId: created.id, newValues: { quantity: input.quantity, finalAmount } },
-      tx
+      {
+        userId,
+        action: "CREATE",
+        entityType: "Booking",
+        entityId: created.id,
+        newValues: { quantity: input.quantity, finalAmount },
+      },
+      tx,
     );
 
     return created;
@@ -136,18 +188,33 @@ async function createBooking(eventId: string, userId: string, input: CreateBooki
   return booking;
 }
 
-async function listMyBookings(userId: string, filters: { status?: string; page: number; limit: number; eventId?: string }) {
-  const { page, limit, skip } = parsePagination(filters as unknown as Record<string, unknown>);
+async function listMyBookings(
+  userId: string,
+  filters: { status?: string; page: number; limit: number; eventId?: string },
+) {
+  const { page, limit, skip } = parsePagination(
+    filters as unknown as Record<string, unknown>,
+  );
   const where: Prisma.BookingWhereInput = { userId, deletedAt: null };
-  if (filters.status) where.status = filters.status as Prisma.BookingWhereInput["status"];
+  if (filters.status)
+    where.status = filters.status as Prisma.BookingWhereInput["status"];
   if (filters.eventId) where.eventId = filters.eventId;
 
   const [total, bookings] = await Promise.all([
     prisma.booking.count({ where }),
-    prisma.booking.findMany({ where, include: BOOKING_INCLUDE, orderBy: { createdAt: "desc" }, skip, take: limit }),
+    prisma.booking.findMany({
+      where,
+      include: BOOKING_INCLUDE,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+    }),
   ]);
 
-  return { items: bookings, pagination: buildPaginationMeta(total, page, limit) };
+  return {
+    items: bookings,
+    pagination: buildPaginationMeta(total, page, limit),
+  };
 }
 
 // A booking may be viewed/cancelled by the attendee who made it, the event's
@@ -155,7 +222,7 @@ async function listMyBookings(userId: string, filters: { status?: string; page: 
 // cancelBooking need the same check against the same loaded record.
 function assertCanAccessBooking(
   booking: { userId: string; event: { organizerId: string } },
-  actor: { id: string; role: string }
+  actor: { id: string; role: string },
 ) {
   if (actor.role === "ADMIN") return;
   if (booking.userId === actor.id) return;
@@ -163,14 +230,24 @@ function assertCanAccessBooking(
   throw ApiError.forbidden("You do not have access to this booking");
 }
 
-async function getBookingById(bookingId: string, actor: { id: string; role: string }) {
-  const booking = await prisma.booking.findFirst({ where: { id: bookingId, deletedAt: null }, include: BOOKING_INCLUDE });
+async function getBookingById(
+  bookingId: string,
+  actor: { id: string; role: string },
+) {
+  const booking = await prisma.booking.findFirst({
+    where: { id: bookingId, deletedAt: null },
+    include: BOOKING_INCLUDE,
+  });
   if (!booking) throw ApiError.notFound("Booking not found");
   assertCanAccessBooking(booking, actor);
   return booking;
 }
 
-async function cancelBooking(bookingId: string, actor: { id: string; role: string }, reason: string) {
+async function cancelBooking(
+  bookingId: string,
+  actor: { id: string; role: string },
+  reason: string,
+) {
   const booking = await prisma.booking.findFirst({
     where: { id: bookingId, deletedAt: null },
     include: { event: true },
@@ -180,24 +257,46 @@ async function cancelBooking(bookingId: string, actor: { id: string; role: strin
   const actorId = actor.id;
 
   if (booking.status === "CHECKED_IN") {
-    throw new ApiError(409, "Cannot cancel a booking that has already been checked in", "CANCELLATION_NOT_ALLOWED");
+    throw new ApiError(
+      409,
+      "Cannot cancel a booking that has already been checked in",
+      "CANCELLATION_NOT_ALLOWED",
+    );
   }
-  if (["CANCELLED", "REFUNDED", "PARTIALLY_REFUNDED", "EXPIRED"].includes(booking.status)) {
-    throw new ApiError(409, "Booking is already cancelled", "CANCELLATION_NOT_ALLOWED");
+  if (
+    ["CANCELLED", "REFUNDED", "PARTIALLY_REFUNDED", "EXPIRED"].includes(
+      booking.status,
+    )
+  ) {
+    throw new ApiError(
+      409,
+      "Booking is already cancelled",
+      "CANCELLATION_NOT_ALLOWED",
+    );
   }
   if (booking.event.startDate.getTime() <= Date.now()) {
-    throw new ApiError(409, "Cannot cancel — the event has already started", "CANCELLATION_NOT_ALLOWED");
+    throw new ApiError(
+      409,
+      "Cannot cancel — the event has already started",
+      "CANCELLATION_NOT_ALLOWED",
+    );
   }
 
   let refundPercent = 100;
   if (!booking.event.allowRefund) {
     refundPercent = 0;
   } else {
-    const hoursUntilStart = (booking.event.startDate.getTime() - Date.now()) / (1000 * 60 * 60);
+    const hoursUntilStart =
+      (booking.event.startDate.getTime() - Date.now()) / (1000 * 60 * 60);
     refundPercent = getRefundPercent(hoursUntilStart);
   }
   const refundAmount = Number(booking.finalAmount) * (refundPercent / 100);
-  const newStatus = refundPercent === 100 ? "REFUNDED" : refundPercent > 0 ? "PARTIALLY_REFUNDED" : "CANCELLED";
+  const newStatus =
+    refundPercent === 100
+      ? "REFUNDED"
+      : refundPercent > 0
+        ? "PARTIALLY_REFUNDED"
+        : "CANCELLED";
   const wasConfirmed = booking.status === "CONFIRMED";
   const wasPending = booking.status === "PENDING";
 
@@ -215,28 +314,49 @@ async function cancelBooking(bookingId: string, actor: { id: string; role: strin
 
     // Release whichever counter this booking was holding.
     if (wasPending) {
-      await tx.ticketTier.update({ where: { id: booking.ticketTierId }, data: { reserved: { decrement: booking.quantity } } });
+      await tx.ticketTier.update({
+        where: { id: booking.ticketTierId },
+        data: { reserved: { decrement: booking.quantity } },
+      });
     } else if (wasConfirmed) {
-      await tx.ticketTier.update({ where: { id: booking.ticketTierId }, data: { sold: { decrement: booking.quantity } } });
+      await tx.ticketTier.update({
+        where: { id: booking.ticketTierId },
+        data: { sold: { decrement: booking.quantity } },
+      });
     }
 
     await writeAuditLog(
-      { userId: actorId, action: "CANCEL", entityType: "Booking", entityId: bookingId, newValues: { status: newStatus, refundAmount } },
-      tx
+      {
+        userId: actorId,
+        action: "CANCEL",
+        entityType: "Booking",
+        entityId: bookingId,
+        newValues: { status: newStatus, refundAmount },
+      },
+      tx,
     );
   });
 
   // Secondary side-effect, intentionally outside the main transaction: a
   // failure here should not roll back a cancellation that already succeeded.
   if (booking.event.isWaitlistEnabled && (wasConfirmed || wasPending)) {
-    await offerNextWaitlistEntry(booking.eventId, booking.ticketTierId, booking.quantity).catch(() => undefined);
+    await offerNextWaitlistEntry(
+      booking.eventId,
+      booking.ticketTierId,
+      booking.quantity,
+    ).catch(() => undefined);
   }
 
   return {
     id: bookingId,
     status: newStatus,
     refundAmount,
-    refundPolicy: refundPercent === 100 ? "FULL_REFUND" : refundPercent > 0 ? "PARTIAL_REFUND" : "NO_REFUND",
+    refundPolicy:
+      refundPercent === 100
+        ? "FULL_REFUND"
+        : refundPercent > 0
+          ? "PARTIAL_REFUND"
+          : "NO_REFUND",
     cancelledAt: new Date(),
   };
 }
@@ -244,25 +364,43 @@ async function cancelBooking(bookingId: string, actor: { id: string; role: strin
 async function checkIn(bookingId: string, actorId: string, qrCode: string) {
   const booking = await prisma.booking.findFirst({
     where: { id: bookingId, deletedAt: null },
-    include: { user: { select: { name: true } }, ticketTier: { select: { name: true } } },
+    include: {
+      user: { select: { name: true } },
+      ticketTier: { select: { name: true } },
+    },
   });
   if (!booking) throw ApiError.notFound("Booking not found");
   if (booking.bookingNumber !== qrCode) {
     throw ApiError.badRequest("QR code does not match this booking");
   }
   if (booking.status === "CHECKED_IN") {
-    throw new ApiError(409, `Ticket already checked in at ${booking.checkedInAt?.toISOString()}`, "ALREADY_CHECKED_IN");
+    throw new ApiError(
+      409,
+      `Ticket already checked in at ${booking.checkedInAt?.toISOString()}`,
+      "ALREADY_CHECKED_IN",
+    );
   }
   if (booking.status !== "CONFIRMED") {
-    throw ApiError.unprocessable("Booking is not in a confirmed state and cannot be checked in");
+    throw ApiError.unprocessable(
+      "Booking is not in a confirmed state and cannot be checked in",
+    );
   }
 
   const updated = await prisma.booking.update({
     where: { id: bookingId },
-    data: { status: "CHECKED_IN", checkedInAt: new Date(), checkedInBy: actorId },
+    data: {
+      status: "CHECKED_IN",
+      checkedInAt: new Date(),
+      checkedInBy: actorId,
+    },
   });
 
-  await writeAuditLog({ userId: actorId, action: "CHECK_IN", entityType: "Booking", entityId: bookingId });
+  await writeAuditLog({
+    userId: actorId,
+    action: "CHECK_IN",
+    entityType: "Booking",
+    entityId: bookingId,
+  });
 
   return {
     bookingId: updated.id,
@@ -282,8 +420,14 @@ async function expireStalePendingBookings(): Promise<number> {
 
   for (const booking of stale) {
     await prisma.$transaction(async (tx) => {
-      await tx.booking.update({ where: { id: booking.id }, data: { status: "EXPIRED" } });
-      await tx.ticketTier.update({ where: { id: booking.ticketTierId }, data: { reserved: { decrement: booking.quantity } } });
+      await tx.booking.update({
+        where: { id: booking.id },
+        data: { status: "EXPIRED" },
+      });
+      await tx.ticketTier.update({
+        where: { id: booking.ticketTierId },
+        data: { reserved: { decrement: booking.quantity } },
+      });
     });
   }
 

@@ -4,7 +4,11 @@ import { sendSuccess } from "../../utils/ApiResponse";
 import { paymentService } from "./payment.service";
 
 const initiatePayment = catchAsync(async (req: Request, res: Response) => {
-  const result = await paymentService.initiatePayment(req.body.bookingId, req.user!.id, req.body.method);
+  const result = await paymentService.initiatePayment(
+    req.body.bookingId,
+    req.user!.id,
+    req.body.method,
+  );
   sendSuccess(res, 201, "Payment initiated successfully", result);
 });
 
@@ -22,8 +26,16 @@ const mockConfirm = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getPaymentStatus = catchAsync(async (req: Request, res: Response) => {
-  const payment = await paymentService.getPaymentStatus(req.params.id, req.user!);
+  const payment = await paymentService.getPaymentStatus(
+    req.params.id,
+    req.user!,
+  );
   sendSuccess(res, 200, "Payment status retrieved", payment);
 });
 
-export const paymentController = { initiatePayment, webhook, mockConfirm, getPaymentStatus };
+export const paymentController = {
+  initiatePayment,
+  webhook,
+  mockConfirm,
+  getPaymentStatus,
+};

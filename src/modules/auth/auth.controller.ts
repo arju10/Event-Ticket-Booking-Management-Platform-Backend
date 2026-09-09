@@ -34,4 +34,11 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
   sendSuccess(res, 200, "Password reset successfully", null);
 });
 
-export const authController = { register, login, refreshToken, logout, forgotPassword, resetPassword };
+export const authController = {
+  register,
+  login,
+  refreshToken,
+  logout,
+  forgotPassword,
+  resetPassword,
+};

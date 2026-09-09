@@ -1,7 +1,13 @@
-import { PrismaClient } from "../src/generated/prisma/index.js";
+import "dotenv/config";
+import { PrismaClient } from "../src/generated/prisma/client.ts";
+import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcrypt";
 
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL!,
+});
+
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const password = await bcrypt.hash("Password123!", 10);
@@ -9,19 +15,37 @@ async function main() {
   const admin = await prisma.user.upsert({
     where: { email: "admin@example.com" },
     update: {},
-    create: { email: "admin@example.com", password, name: "Platform Admin", role: "ADMIN", isEmailVerified: true },
+    create: {
+      email: "admin@example.com",
+      password,
+      name: "Platform Admin",
+      role: "ADMIN",
+      isEmailVerified: true,
+    },
   });
 
   const organizer = await prisma.user.upsert({
     where: { email: "organizer@example.com" },
     update: {},
-    create: { email: "organizer@example.com", password, name: "Tech Corp", role: "ORGANIZER", isEmailVerified: true },
+    create: {
+      email: "organizer@example.com",
+      password,
+      name: "Tech Corp",
+      role: "ORGANIZER",
+      isEmailVerified: true,
+    },
   });
 
   const attendee = await prisma.user.upsert({
     where: { email: "attendee@example.com" },
     update: {},
-    create: { email: "attendee@example.com", password, name: "John Doe", role: "ATTENDEE", isEmailVerified: true },
+    create: {
+      email: "attendee@example.com",
+      password,
+      name: "John Doe",
+      role: "ATTENDEE",
+      isEmailVerified: true,
+    },
   });
 
   const event = await prisma.event.upsert({
@@ -98,7 +122,9 @@ async function main() {
 
   console.log("Seed complete:");
   console.log(`  Admin:     admin@example.com / Password123!`);
-  console.log(`  Organizer: organizer@example.com / Password123! (owns "${event.title}")`);
+  console.log(
+    `  Organizer: organizer@example.com / Password123! (owns "${event.title}")`,
+  );
   console.log(`  Attendee:  attendee@example.com / Password123!`);
   console.log(`  Coupon:    EARLY50 (50% off, min purchase 500)`);
 }

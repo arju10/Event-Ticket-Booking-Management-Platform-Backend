@@ -7,7 +7,7 @@ export function sendSuccess(
   res: Response,
   statusCode: number,
   message: string,
-  data: unknown = null
+  data: unknown = null,
 ) {
   return res.status(statusCode).json({
     success: true,
@@ -22,7 +22,7 @@ export function sendPaginated(
   message: string,
   items: unknown[],
   pagination: PaginationMeta,
-  extra: Record<string, unknown> = {}
+  extra: Record<string, unknown> = {},
 ) {
   return res.status(200).json({
     success: true,

@@ -4,15 +4,22 @@ import { authenticate } from "../../middlewares/authenticate";
 import { authorize } from "../../middlewares/authorize";
 import { isResourceOwner } from "../../middlewares/isResourceOwner";
 import { validateRequest } from "../../middlewares/validateRequest";
-import { createTicketTierSchema, updateTicketTierSchema } from "./ticketTier.validation";
+import {
+  createTicketTierSchema,
+  updateTicketTierSchema,
+} from "./ticketTier.validation";
 import { ticketTierService } from "./ticketTier.service";
 
 // mergeParams so nested mounting under /events/:eventId/ticket-tiers still
 // exposes req.params.eventId here.
 const router = Router({ mergeParams: true });
 
-const ownsEvent = isResourceOwner((req) => ticketTierService.getEventOwnerId(req.params.eventId));
-const ownsTier = isResourceOwner((req) => ticketTierService.getTierOwnerId(req.params.id));
+const ownsEvent = isResourceOwner((req) =>
+  ticketTierService.getEventOwnerId(req.params.eventId),
+);
+const ownsTier = isResourceOwner((req) =>
+  ticketTierService.getTierOwnerId(req.params.id),
+);
 
 router.post(
   "/",
@@ -20,7 +27,7 @@ router.post(
   authorize("ORGANIZER", "ADMIN"),
   ownsEvent,
   validateRequest(createTicketTierSchema),
-  ticketTierController.createTicketTier
+  ticketTierController.createTicketTier,
 );
 router.get("/", ticketTierController.listTicketTiers);
 
@@ -35,6 +42,6 @@ flatRouter.patch(
   authorize("ORGANIZER", "ADMIN"),
   ownsTier,
   validateRequest(updateTicketTierSchema),
-  ticketTierController.updateTicketTier
+  ticketTierController.updateTicketTier,
 );
 export const ticketTierFlatRoutes = flatRouter;

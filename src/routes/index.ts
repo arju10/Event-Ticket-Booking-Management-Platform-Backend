@@ -4,12 +4,18 @@ import { authRoutes } from "../modules/auth/auth.route";
 import { userRoutes } from "../modules/user/user.route";
 import { eventRoutes } from "../modules/event/event.route";
 import { ticketTierFlatRoutes } from "../modules/ticketTier/ticketTier.route";
-import { bookingFlatRoutes, bookingMyRoutes } from "../modules/booking/booking.route";
+import {
+  bookingFlatRoutes,
+  bookingMyRoutes,
+} from "../modules/booking/booking.route";
 import { paymentRoutes } from "../modules/payment/payment.route";
 import { waitlistFlatRoutes } from "../modules/waitlist/waitlist.route";
 import { reviewFlatRoutes } from "../modules/review/review.route";
 import { couponRoutes } from "../modules/coupon/coupon.route";
-import { notificationRoutes, notificationFlatRoutes } from "../modules/notification/notification.route";
+import {
+  notificationRoutes,
+  notificationFlatRoutes,
+} from "../modules/notification/notification.route";
 import { adminRoutes } from "../modules/admin/admin.route";
 
 const router = Router();

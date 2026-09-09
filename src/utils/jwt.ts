@@ -9,12 +9,16 @@ export interface JwtPayload {
 }
 
 export function signAccessToken(payload: JwtPayload): string {
-  const options: jwt.SignOptions = { expiresIn: env.jwt.accessExpiresIn as jwt.SignOptions["expiresIn"] };
+  const options: jwt.SignOptions = {
+    expiresIn: env.jwt.accessExpiresIn as jwt.SignOptions["expiresIn"],
+  };
   return jwt.sign(payload, env.jwt.accessSecret, options);
 }
 
 export function signRefreshToken(payload: JwtPayload): string {
-  const options: jwt.SignOptions = { expiresIn: env.jwt.refreshExpiresIn as jwt.SignOptions["expiresIn"] };
+  const options: jwt.SignOptions = {
+    expiresIn: env.jwt.refreshExpiresIn as jwt.SignOptions["expiresIn"],
+  };
   return jwt.sign(payload, env.jwt.refreshSecret, options);
 }
 

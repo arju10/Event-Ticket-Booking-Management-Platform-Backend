@@ -157,13 +157,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
             },
             "description": "Captures attendeeAccessToken, attendeeRefreshToken, attendeeId, attendeeEmail automatically.",
             "body": {
@@ -211,13 +206,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "register"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
             },
             "description": "Captures organizerAccessToken, organizerRefreshToken, organizerId, organizerEmail automatically.",
             "body": {
@@ -265,13 +255,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "login"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
             },
             "description": "Uses the admin account created by `npm run seed`. Admins cannot self-register.",
             "body": {
@@ -318,13 +303,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/refresh-token",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "refresh-token"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh-token"]
             },
             "body": {
               "mode": "raw",
@@ -372,13 +352,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/logout",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "logout"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
             },
             "body": {
               "mode": "raw",
@@ -417,13 +392,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/forgot-password",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "forgot-password"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forgot-password"]
             },
             "description": "Always returns 200 regardless of whether the email exists (anti-enumeration). Check the server console log for the reset token in dev.",
             "body": {
@@ -463,13 +433,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/reset-password",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "reset-password"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "reset-password"]
             },
             "description": "Paste the reset token printed in the server console (from the Forgot Password call above) into the resetToken collection variable before running this.",
             "body": {
@@ -502,13 +467,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me"]
             }
           },
           "response": [],
@@ -542,13 +502,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "me"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me"]
             },
             "body": {
               "mode": "raw",
@@ -591,13 +546,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/change-password",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "change-password"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "change-password"]
             },
             "description": "Uses the same password for old/new so re-running the collection doesn't lock you out. Change the values if you want to actually test a password change.",
             "body": {
@@ -619,14 +569,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/users/{{organizerId}}/profile",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "{{organizerId}}",
-                "profile"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{organizerId}}", "profile"]
             }
           },
           "response": [],
@@ -665,12 +609,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/events",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["events"]
             },
             "body": {
               "mode": "raw",
@@ -710,12 +650,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/events?page=1&limit=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["events"],
               "query": [
                 {
                   "key": "page",
@@ -755,12 +691,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/events?status=DRAFT",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["events"],
               "query": [
                 {
                   "key": "status",
@@ -791,13 +723,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/events/{{eventId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events",
-                "{{eventId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}"]
             }
           },
           "response": [],
@@ -831,13 +758,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/events/{{eventId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events",
-                "{{eventId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}"]
             },
             "body": {
               "mode": "raw",
@@ -880,14 +802,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/events/{{eventId}}/status",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events",
-                "{{eventId}}",
-                "status"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}", "status"]
             },
             "description": "Must run before any booking can be created -- bookings require the event to be PUBLISHED.",
             "body": {
@@ -936,14 +852,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/events/{{eventId}}/ticket-tiers",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events",
-                "{{eventId}}",
-                "ticket-tiers"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}", "ticket-tiers"]
             },
             "body": {
               "mode": "raw",
@@ -991,14 +901,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/events/{{eventId}}/ticket-tiers",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events",
-                "{{eventId}}",
-                "ticket-tiers"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}", "ticket-tiers"]
             },
             "body": {
               "mode": "raw",
@@ -1037,14 +941,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/events/{{eventId}}/ticket-tiers",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events",
-                "{{eventId}}",
-                "ticket-tiers"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}", "ticket-tiers"]
             }
           },
           "response": [],
@@ -1078,13 +976,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/ticket-tiers/{{ticketTierId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "ticket-tiers",
-                "{{ticketTierId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["ticket-tiers", "{{ticketTierId}}"]
             },
             "body": {
               "mode": "raw",
@@ -1132,13 +1025,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/coupons/validate",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "coupons",
-                "validate"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["coupons", "validate"]
             },
             "description": "EARLY50 is seeded by `npm run seed` (50% off, min purchase 500, max discount 1000).",
             "body": {
@@ -1187,14 +1075,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/events/{{eventId}}/book",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events",
-                "{{eventId}}",
-                "book"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}", "book"]
             },
             "description": "This is the booking used for the rest of the happy path (payment -> check-in -> review). Captures bookingId + bookingNumber.",
             "body": {
@@ -1245,14 +1127,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/events/{{eventId}}/book",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events",
-                "{{eventId}}",
-                "book"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}", "book"]
             },
             "description": "VIP tier has quantity=1, so this immediately exhausts it -- enables the Waitlist folder's 'Join Waitlist' request to succeed.",
             "body": {
@@ -1297,13 +1173,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/bookings?page=1&limit=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "bookings"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "bookings"],
               "query": [
                 {
                   "key": "page",
@@ -1343,13 +1214,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/bookings/{{bookingId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "bookings",
-                "{{bookingId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingId}}"]
             }
           },
           "response": [],
@@ -1388,13 +1254,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/payments/initiate",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "payments",
-                "initiate"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "initiate"]
             },
             "description": "Idempotent -- safe to re-run. Captures paymentId.",
             "body": {
@@ -1439,14 +1300,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/payments/mock-confirm/{{bookingId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "payments",
-                "mock-confirm",
-                "{{bookingId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "mock-confirm", "{{bookingId}}"]
             },
             "description": "Only works when STRIPE_SECRET_KEY is NOT set in .env (the default for local dev). Simulates a successful webhook: moves the booking to CONFIRMED and the tier's held units from reserved to sold. If you HAVE configured Stripe, open paymentUrl (captured from Create Booking) in a browser and pay with a Stripe test card instead."
           },
@@ -1477,14 +1332,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/payments/{{paymentId}}/status",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "payments",
-                "{{paymentId}}",
-                "status"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "{{paymentId}}", "status"]
             }
           },
           "response": [],
@@ -1523,14 +1372,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/events/{{eventId}}/waitlist",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events",
-                "{{eventId}}",
-                "waitlist"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}", "waitlist"]
             },
             "description": "Requires the VIP tier to be sold out first -- run '06 - Bookings > Create Booking - VIP' before this.",
             "body": {
@@ -1575,14 +1418,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/events/{{eventId}}/waitlist",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events",
-                "{{eventId}}",
-                "waitlist"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}", "waitlist"]
             }
           },
           "response": [],
@@ -1612,13 +1449,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/waitlist/{{waitlistId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "waitlist",
-                "{{waitlistId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["waitlist", "{{waitlistId}}"]
             }
           },
           "response": [],
@@ -1657,14 +1489,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/bookings/{{bookingId}}/check-in",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "bookings",
-                "{{bookingId}}",
-                "check-in"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{bookingId}}", "check-in"]
             },
             "description": "A review can only be submitted for a CHECKED_IN booking. Run '07 - Payments > Mock Confirm Payment' first so the booking is CONFIRMED before checking it in.",
             "body": {
@@ -1708,14 +1534,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/events/{{eventId}}/review",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events",
-                "{{eventId}}",
-                "review"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}", "review"]
             },
             "body": {
               "mode": "raw",
@@ -1754,14 +1574,8 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/events/{{eventId}}/reviews?page=1&limit=10",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events",
-                "{{eventId}}",
-                "reviews"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}", "reviews"],
               "query": [
                 {
                   "key": "page",
@@ -1805,14 +1619,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/reviews/{{reviewId}}/respond",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "reviews",
-                "{{reviewId}}",
-                "respond"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["reviews", "{{reviewId}}", "respond"]
             },
             "body": {
               "mode": "raw",
@@ -1856,13 +1664,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/users/notifications?page=1&limit=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "notifications"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "notifications"],
               "query": [
                 {
                   "key": "page",
@@ -1912,14 +1715,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/notifications/{{notificationId}}/read",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "notifications",
-                "{{notificationId}}",
-                "read"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "{{notificationId}}", "read"]
             }
           },
           "response": [],
@@ -1949,13 +1746,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/notifications/read-all",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "notifications",
-                "read-all"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "read-all"]
             }
           },
           "response": [],
@@ -1990,13 +1782,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/users?page=1&limit=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "users"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users"],
               "query": [
                 {
                   "key": "page",
@@ -2036,13 +1823,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/dashboard-stats",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "dashboard-stats"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "dashboard-stats"]
             }
           },
           "response": [],
@@ -2072,13 +1854,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/audit-logs?page=1&limit=50",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "audit-logs"
-              ],
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "audit-logs"],
               "query": [
                 {
                   "key": "page",
@@ -2122,13 +1899,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/coupons",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "coupons"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "coupons"]
             },
             "body": {
               "mode": "raw",
@@ -2181,14 +1953,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/events/{{eventId}}/book",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events",
-                "{{eventId}}",
-                "book"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}", "book"]
             },
             "description": "A fresh booking used only for the Cancel Booking request below, so it doesn't disturb the bookingId used earlier for check-in/review.",
             "body": {
@@ -2237,14 +2003,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/bookings/{{cancelBookingId}}/cancel",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "bookings",
-                "{{cancelBookingId}}",
-                "cancel"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "{{cancelBookingId}}", "cancel"]
             },
             "body": {
               "mode": "raw",
@@ -2287,15 +2047,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/users/{{attendeeId}}/role",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "users",
-                "{{attendeeId}}",
-                "role"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "{{attendeeId}}", "role"]
             },
             "description": "WARNING: changes the seeded attendee's role. If you run this, subsequent ATTENDEE-only actions (booking, joining waitlist) will start failing with 403 for that user -- register a fresh attendee afterward if you need to keep testing the attendee flow.",
             "body": {
@@ -2339,15 +2092,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/users/{{attendeeId}}/suspend",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "users",
-                "{{attendeeId}}",
-                "suspend"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "{{attendeeId}}", "suspend"]
             },
             "description": "WARNING: locks the attendee out of login entirely until reinstated (suspend: false).",
             "body": {
@@ -2391,15 +2137,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/users/{{attendeeId}}/suspend",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "users",
-                "{{attendeeId}}",
-                "suspend"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "{{attendeeId}}", "suspend"]
             },
             "body": {
               "mode": "raw",
@@ -2438,13 +2177,8 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/events/{{eventId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "events",
-                "{{eventId}}"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}"]
             },
             "description": "Soft-deletes the event created at the top of this collection. Run this ABSOLUTE LAST -- every other folder depends on eventId existing."
           },

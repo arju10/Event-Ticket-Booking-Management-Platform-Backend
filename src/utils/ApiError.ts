@@ -9,7 +9,7 @@ export class ApiError extends Error {
     statusCode: number,
     message: string,
     code = "ERROR",
-    errors: Array<{ field: string; message: string }> = []
+    errors: Array<{ field: string; message: string }> = [],
   ) {
     super(message);
     this.statusCode = statusCode;
@@ -18,7 +18,10 @@ export class ApiError extends Error {
     Object.setPrototypeOf(this, ApiError.prototype);
   }
 
-  static badRequest(message: string, errors: Array<{ field: string; message: string }> = []) {
+  static badRequest(
+    message: string,
+    errors: Array<{ field: string; message: string }> = [],
+  ) {
     return new ApiError(400, message, "VALIDATION_ERROR", errors);
   }
   static unauthorized(message = "Authentication required") {

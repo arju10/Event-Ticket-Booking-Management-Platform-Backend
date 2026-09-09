@@ -11,7 +11,9 @@ async function bootstrap() {
 
     const server = app.listen(env.port, () => {
       logger.info(`Server running on port ${env.port} [${env.nodeEnv}]`);
-      logger.info(`API base: http://localhost:${env.port}/api/${env.apiVersion}`);
+      logger.info(
+        `API base: http://localhost:${env.port}/api/${env.apiVersion}`,
+      );
     });
 
     startBackgroundJobs();

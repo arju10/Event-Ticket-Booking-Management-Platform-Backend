@@ -10,14 +10,22 @@ import { reviewService } from "./review.service";
 // Nested router: mounted at /events/:eventId/review (POST) and /reviews (GET)
 const router = Router({ mergeParams: true });
 
-router.post("/", authenticate, authorize("ATTENDEE"), validateRequest(createReviewSchema), reviewController.createReview);
+router.post(
+  "/",
+  authenticate,
+  authorize("ATTENDEE"),
+  validateRequest(createReviewSchema),
+  reviewController.createReview,
+);
 router.get("/", reviewController.getEventReviews);
 
 export const reviewRoutes = router;
 
 // Flat router: mounted at /reviews for POST /reviews/:id/respond
 const flatRouter = Router();
-const ownsReviewEvent = isResourceOwner((req) => reviewService.getReviewEventOwnerId(req.params.id));
+const ownsReviewEvent = isResourceOwner((req) =>
+  reviewService.getReviewEventOwnerId(req.params.id),
+);
 
 flatRouter.post(
   "/:id/respond",
@@ -25,6 +33,6 @@ flatRouter.post(
   authorize("ORGANIZER", "ADMIN"),
   ownsReviewEvent,
   validateRequest(respondToReviewSchema),
-  reviewController.respondToReview
+  reviewController.respondToReview,
 );
 export const reviewFlatRoutes = flatRouter;

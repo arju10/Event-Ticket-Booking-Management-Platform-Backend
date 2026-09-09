@@ -16,13 +16,27 @@ const listUsers = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateUserRole = catchAsync(async (req: Request, res: Response) => {
-  const result = await adminService.updateUserRole(req.params.id, req.body.role, req.user!.id);
+  const result = await adminService.updateUserRole(
+    req.params.id,
+    req.body.role,
+    req.user!.id,
+  );
   sendSuccess(res, 200, "User role updated successfully", result);
 });
 
 const suspendUser = catchAsync(async (req: Request, res: Response) => {
-  const result = await adminService.suspendUser(req.params.id, req.body.suspend, req.body.reason, req.user!.id);
-  sendSuccess(res, 200, `User ${req.body.suspend ? "suspended" : "reinstated"} successfully`, result);
+  const result = await adminService.suspendUser(
+    req.params.id,
+    req.body.suspend,
+    req.body.reason,
+    req.user!.id,
+  );
+  sendSuccess(
+    res,
+    200,
+    `User ${req.body.suspend ? "suspended" : "reinstated"} successfully`,
+    result,
+  );
 });
 
 const getDashboardStats = catchAsync(async (_req: Request, res: Response) => {
@@ -44,4 +58,10 @@ const getAuditLogs = catchAsync(async (req: Request, res: Response) => {
   sendPaginated(res, "Audit logs retrieved", items, pagination);
 });
 
-export const adminController = { listUsers, updateUserRole, suspendUser, getDashboardStats, getAuditLogs };
+export const adminController = {
+  listUsers,
+  updateUserRole,
+  suspendUser,
+  getDashboardStats,
+  getAuditLogs,
+};

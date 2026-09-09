@@ -1,6 +1,12 @@
 import { z } from "zod";
 
-const eventStatuses = ["DRAFT", "PUBLISHED", "CANCELLED", "COMPLETED", "POSTPONED"] as const;
+const eventStatuses = [
+  "DRAFT",
+  "PUBLISHED",
+  "CANCELLED",
+  "COMPLETED",
+  "POSTPONED",
+] as const;
 
 export const createEventSchema = z.object({
   body: z

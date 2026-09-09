@@ -5,7 +5,13 @@ import { writeAuditLog } from "../../lib/audit";
 import { CreateCouponInput } from "./coupon.interface";
 
 export interface CouponValidationResult {
-  coupon: { id: string; code: string; discountType: string; discountValue: Prisma.Decimal; maxDiscount: Prisma.Decimal | null };
+  coupon: {
+    id: string;
+    code: string;
+    discountType: string;
+    discountValue: Prisma.Decimal;
+    maxDiscount: Prisma.Decimal | null;
+  };
   discountAmount: number;
 }
 
@@ -17,10 +23,15 @@ export async function validateAndPriceCoupon(
   tx: Prisma.TransactionClient,
   code: string,
   userId: string,
-  totalPrice: number
+  totalPrice: number,
 ): Promise<CouponValidationResult> {
-  const coupon = await tx.coupon.findFirst({ where: { code, deletedAt: null } });
-  if (!coupon || !coupon.isActive) throw ApiError.badRequest("Coupon is invalid or expired", [{ field: "couponCode", message: "Invalid coupon" }]);
+  const coupon = await tx.coupon.findFirst({
+    where: { code, deletedAt: null },
+  });
+  if (!coupon || !coupon.isActive)
+    throw ApiError.badRequest("Coupon is invalid or expired", [
+      { field: "couponCode", message: "Invalid coupon" },
+    ]);
 
   const now = new Date();
   if (now < coupon.startDate || now > coupon.endDate) {
@@ -30,20 +41,35 @@ export async function validateAndPriceCoupon(
     throw new ApiError(400, "Coupon usage limit reached", "INVALID_COUPON");
   }
   if (coupon.minPurchase && totalPrice < Number(coupon.minPurchase)) {
-    throw new ApiError(400, `Coupon requires a minimum purchase of ${coupon.minPurchase}`, "INVALID_COUPON");
+    throw new ApiError(
+      400,
+      `Coupon requires a minimum purchase of ${coupon.minPurchase}`,
+      "INVALID_COUPON",
+    );
   }
 
   const priorUses = await tx.booking.count({
-    where: { userId, couponCode: code, status: { in: ["CONFIRMED", "CHECKED_IN", "PENDING"] } },
+    where: {
+      userId,
+      couponCode: code,
+      status: { in: ["CONFIRMED", "CHECKED_IN", "PENDING"] },
+    },
   });
   if (priorUses >= coupon.perUserLimit) {
-    throw new ApiError(400, "You have already used this coupon", "INVALID_COUPON");
+    throw new ApiError(
+      400,
+      "You have already used this coupon",
+      "INVALID_COUPON",
+    );
   }
 
   let discountAmount =
-    coupon.discountType === "PERCENTAGE" ? (totalPrice * Number(coupon.discountValue)) / 100 : Number(coupon.discountValue);
+    coupon.discountType === "PERCENTAGE"
+      ? (totalPrice * Number(coupon.discountValue)) / 100
+      : Number(coupon.discountValue);
 
-  if (coupon.maxDiscount) discountAmount = Math.min(discountAmount, Number(coupon.maxDiscount));
+  if (coupon.maxDiscount)
+    discountAmount = Math.min(discountAmount, Number(coupon.maxDiscount));
   discountAmount = Math.min(discountAmount, totalPrice);
 
   return { coupon, discountAmount };
@@ -52,12 +78,25 @@ export async function validateAndPriceCoupon(
 // Standalone, read-only preview for POST /coupons/validate — reuses the same
 // rule set as the transactional validator above, just without the tx lock
 // (nothing is committed here, it is purely informational for the client).
-async function previewCoupon(code: string, userId: string, eventId: string, ticketTierId: string, quantity: number) {
-  const tier = await prisma.ticketTier.findFirst({ where: { id: ticketTierId, eventId, deletedAt: null } });
+async function previewCoupon(
+  code: string,
+  userId: string,
+  eventId: string,
+  ticketTierId: string,
+  quantity: number,
+) {
+  const tier = await prisma.ticketTier.findFirst({
+    where: { id: ticketTierId, eventId, deletedAt: null },
+  });
   if (!tier) throw ApiError.notFound("Ticket tier not found");
 
   const totalPrice = Number(tier.price) * quantity;
-  const { coupon, discountAmount } = await validateAndPriceCoupon(prisma as unknown as Prisma.TransactionClient, code, userId, totalPrice);
+  const { coupon, discountAmount } = await validateAndPriceCoupon(
+    prisma as unknown as Prisma.TransactionClient,
+    code,
+    userId,
+    totalPrice,
+  );
 
   return {
     code: coupon.code,
@@ -70,8 +109,24 @@ async function previewCoupon(code: string, userId: string, eventId: string, tick
 
 async function createCoupon(actorId: string, data: CreateCouponInput) {
   const coupon = await prisma.coupon.create({ data });
-  await writeAuditLog({ userId: actorId, action: "COUPON_CREATE", entityType: "Coupon", entityId: coupon.id, newValues: data });
-  return { id: coupon.id, code: coupon.code, discountValue: Number(coupon.discountValue), isActive: coupon.isActive, createdAt: coupon.createdAt };
+  await writeAuditLog({
+    userId: actorId,
+    action: "COUPON_CREATE",
+    entityType: "Coupon",
+    entityId: coupon.id,
+    newValues: data,
+  });
+  return {
+    id: coupon.id,
+    code: coupon.code,
+    discountValue: Number(coupon.discountValue),
+    isActive: coupon.isActive,
+    createdAt: coupon.createdAt,
+  };
 }
 
-export const couponService = { validateAndPriceCoupon, previewCoupon, createCoupon };
+export const couponService = {
+  validateAndPriceCoupon,
+  previewCoupon,
+  createCoupon,
+};

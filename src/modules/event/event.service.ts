@@ -4,7 +4,11 @@ import { generateSlug } from "../../utils/generateCodes";
 import { buildPaginationMeta, parsePagination } from "../../types/common.types";
 import { writeAuditLog } from "../../lib/audit";
 import { Prisma } from "../../generated/prisma";
-import { EventListFilters, CreateEventInput, UpdateEventInput } from "./event.interface";
+import {
+  EventListFilters,
+  CreateEventInput,
+  UpdateEventInput,
+} from "./event.interface";
 
 const EVENT_CARD_SELECT = {
   id: true,
@@ -21,7 +25,10 @@ const EVENT_CARD_SELECT = {
 } as const;
 
 async function getOrganizerId(eventId: string): Promise<string | null> {
-  const event = await prisma.event.findFirst({ where: { id: eventId, deletedAt: null }, select: { organizerId: true } });
+  const event = await prisma.event.findFirst({
+    where: { id: eventId, deletedAt: null },
+    select: { organizerId: true },
+  });
   return event?.organizerId ?? null;
 }
 
@@ -64,7 +71,9 @@ async function createEvent(organizerId: string, data: CreateEventInput) {
 }
 
 async function listEvents(filters: EventListFilters) {
-  const { page, limit, skip } = parsePagination(filters as unknown as Record<string, unknown>);
+  const { page, limit, skip } = parsePagination(
+    filters as unknown as Record<string, unknown>,
+  );
 
   const where: Prisma.EventWhereInput = { deletedAt: null };
 
@@ -111,15 +120,21 @@ async function listEvents(filters: EventListFilters) {
 
   let items = events.map((e) => ({
     ...e,
-    lowestPrice: e.ticketTiers.length ? Math.min(...e.ticketTiers.map((t) => Number(t.price))) : null,
+    lowestPrice: e.ticketTiers.length
+      ? Math.min(...e.ticketTiers.map((t) => Number(t.price)))
+      : null,
     ticketTiers: undefined,
   }));
 
   if (filters.priceMin !== undefined) {
-    items = items.filter((e) => e.lowestPrice !== null && e.lowestPrice >= filters.priceMin!);
+    items = items.filter(
+      (e) => e.lowestPrice !== null && e.lowestPrice >= filters.priceMin!,
+    );
   }
   if (filters.priceMax !== undefined) {
-    items = items.filter((e) => e.lowestPrice !== null && e.lowestPrice <= filters.priceMax!);
+    items = items.filter(
+      (e) => e.lowestPrice !== null && e.lowestPrice <= filters.priceMax!,
+    );
   }
 
   return { items, pagination: buildPaginationMeta(total, page, limit) };
@@ -129,15 +144,23 @@ async function getEventById(id: string) {
   const event = await prisma.event.findFirst({
     where: { id, deletedAt: null },
     include: {
-      organizer: { select: { id: true, name: true, profileImage: true, email: true } },
+      organizer: {
+        select: { id: true, name: true, profileImage: true, email: true },
+      },
       ticketTiers: { where: { deletedAt: null } },
     },
   });
   if (!event) throw ApiError.notFound("Event not found");
 
   const [bookingCount, reviewAgg] = await Promise.all([
-    prisma.booking.count({ where: { eventId: id, status: { in: ["CONFIRMED", "CHECKED_IN"] } } }),
-    prisma.review.aggregate({ where: { eventId: id, deletedAt: null }, _avg: { rating: true }, _count: true }),
+    prisma.booking.count({
+      where: { eventId: id, status: { in: ["CONFIRMED", "CHECKED_IN"] } },
+    }),
+    prisma.review.aggregate({
+      where: { eventId: id, deletedAt: null },
+      _avg: { rating: true },
+      _count: true,
+    }),
   ]);
 
   const ticketTiers = event.ticketTiers.map((t) => ({
@@ -150,14 +173,18 @@ async function getEventById(id: string) {
     ticketTiers,
     statistics: {
       totalBookings: bookingCount,
-      averageRating: reviewAgg._avg.rating ? Number(reviewAgg._avg.rating.toFixed(1)) : null,
+      averageRating: reviewAgg._avg.rating
+        ? Number(reviewAgg._avg.rating.toFixed(1))
+        : null,
       totalReviews: reviewAgg._count,
     },
   };
 }
 
 async function updateEvent(id: string, data: UpdateEventInput) {
-  const event = await prisma.event.findFirst({ where: { id, deletedAt: null } });
+  const event = await prisma.event.findFirst({
+    where: { id, deletedAt: null },
+  });
   if (!event) throw ApiError.notFound("Event not found");
   if (event.startDate.getTime() <= Date.now()) {
     throw ApiError.conflict("Cannot edit an event that has already started");
@@ -165,16 +192,23 @@ async function updateEvent(id: string, data: UpdateEventInput) {
 
   const updated = await prisma.event.update({
     where: { id },
-    data: { ...data, additionalInfo: data.additionalInfo as Prisma.InputJsonValue | undefined },
+    data: {
+      ...data,
+      additionalInfo: data.additionalInfo as Prisma.InputJsonValue | undefined,
+    },
   });
   return updated;
 }
 
 async function updateEventStatus(id: string, status: string, actorId: string) {
-  const event = await prisma.event.findFirst({ where: { id, deletedAt: null } });
+  const event = await prisma.event.findFirst({
+    where: { id, deletedAt: null },
+  });
   if (!event) throw ApiError.notFound("Event not found");
 
-  const data: Prisma.EventUpdateInput = { status: status as Prisma.EventUpdateInput["status"] };
+  const data: Prisma.EventUpdateInput = {
+    status: status as Prisma.EventUpdateInput["status"],
+  };
   if (status === "PUBLISHED") data.publishedAt = new Date();
   if (status === "CANCELLED") data.cancelledAt = new Date();
 
@@ -207,10 +241,13 @@ async function updateEventStatus(id: string, status: string, actorId: string) {
             action: "REFUND",
             entityType: "Booking",
             entityId: booking.id,
-            newValues: { status: "REFUNDED", refundAmount: booking.finalAmount },
+            newValues: {
+              status: "REFUNDED",
+              refundAmount: booking.finalAmount,
+            },
             description: "Auto-refunded due to event cancellation",
           },
-          tx
+          tx,
         );
       }
     }
@@ -224,7 +261,7 @@ async function updateEventStatus(id: string, status: string, actorId: string) {
         oldValues: { status: event.status },
         newValues: { status },
       },
-      tx
+      tx,
     );
 
     return ev;
@@ -234,23 +271,36 @@ async function updateEventStatus(id: string, status: string, actorId: string) {
 }
 
 async function deleteEvent(id: string, actorId: string) {
-  const event = await prisma.event.findFirst({ where: { id, deletedAt: null } });
+  const event = await prisma.event.findFirst({
+    where: { id, deletedAt: null },
+  });
   if (!event) throw ApiError.notFound("Event not found");
 
   const soon = event.startDate.getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000;
   const hasActiveBookings = await prisma.booking.count({
-    where: { eventId: id, status: { in: ["CONFIRMED", "CHECKED_IN", "PENDING"] } },
+    where: {
+      eventId: id,
+      status: { in: ["CONFIRMED", "CHECKED_IN", "PENDING"] },
+    },
   });
 
   if (soon && hasActiveBookings > 0) {
     throw ApiError.conflict(
       "Cannot delete an event with active bookings less than 7 days before start — cancel it instead to trigger refunds",
-      "CANCELLATION_NOT_ALLOWED"
+      "CANCELLATION_NOT_ALLOWED",
     );
   }
 
-  await prisma.event.update({ where: { id }, data: { deletedAt: new Date(), isActive: false } });
-  await writeAuditLog({ userId: actorId, action: "SOFT_DELETE", entityType: "Event", entityId: id });
+  await prisma.event.update({
+    where: { id },
+    data: { deletedAt: new Date(), isActive: false },
+  });
+  await writeAuditLog({
+    userId: actorId,
+    action: "SOFT_DELETE",
+    entityType: "Event",
+    entityId: id,
+  });
 }
 
 export const eventService = {

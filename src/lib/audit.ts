@@ -18,7 +18,7 @@ interface WriteAuditLogInput {
 // change it describes, or `prisma` directly for a standalone write.
 export async function writeAuditLog(
   input: WriteAuditLogInput,
-  client: Prisma.TransactionClient | typeof prisma = prisma
+  client: Prisma.TransactionClient | typeof prisma = prisma,
 ) {
   await client.auditLog.create({
     data: {

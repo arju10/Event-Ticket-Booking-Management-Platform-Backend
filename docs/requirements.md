@@ -1,4 +1,5 @@
 # Event Ticket Booking & Management Platform
+
 ## Final Technical Requirements & API Specification (v2 — Merged)
 
 **Version:** 2.0 (supersedes v1.0 — merges the original spec with the expanded feature set)
@@ -28,9 +29,11 @@
 ## 1. Project Overview
 
 ### 1.1 Description
+
 A backend platform for discovering, booking, and managing event tickets. **Organizers** create events with multiple ticket tiers; **Attendees** discover events and book tickets with guaranteed inventory correctness under concurrent load; **Admins** moderate the platform. Payments, coupons, waitlists, notifications, and reviews round out a realistic product surface — all backed by atomic, race-condition-safe booking logic.
 
 ### 1.2 Objectives
+
 - Robust REST API for event discovery and ticket booking
 - Secure authentication and strict role-based access control
 - Zero overselling under concurrent booking requests
@@ -39,6 +42,7 @@ A backend platform for discovering, booking, and managing event tickets. **Organ
 - Search, filter, sort, and paginate everywhere it matters
 
 ### 1.3 Roles
+
 - **Attendee** — discovers events, books tickets, joins waitlists, leaves reviews
 - **Organizer** — creates/manages own events, ticket tiers, check-ins, responds to reviews
 - **Admin** — moderates events/users, manages coupons, views platform-wide analytics and audit logs
@@ -47,28 +51,28 @@ A backend platform for discovering, booking, and managing event tickets. **Organ
 
 ## 2. Roles & Permissions Matrix
 
-| Action | Attendee | Organizer | Admin |
-|---|:---:|:---:|:---:|
-| Register / Login | ✅ | ✅ | ✅ (seeded only, no self-registration) |
-| Browse / search events | ✅ | ✅ | ✅ |
-| Create event | ❌ | ✅ (own) | ✅ |
-| Update / publish / cancel event | ❌ | ✅ (own only) | ✅ (any) |
-| Delete event (soft) | ❌ | ✅ (own only) | ✅ (any) |
-| Create / update ticket tiers | ❌ | ✅ (own events) | ✅ |
-| Book tickets | ✅ | ✅ | ❌ (admins don't buy) |
-| View own bookings | ✅ | ✅ | ✅ |
-| View an event's bookings (sales) | ❌ | ✅ (own events) | ✅ (any) |
-| Cancel own booking | ✅ | ✅ | ✅ |
-| Check in an attendee | ❌ | ✅ (own events) | ✅ |
-| Join / leave waitlist | ✅ | ✅ | ❌ |
-| View waitlist | ❌ | ✅ (own events) | ✅ |
-| Leave a review | ✅ (attended only) | ❌ | ❌ |
-| Respond to a review | ❌ | ✅ (own events) | ✅ |
-| Validate a coupon | ✅ | ✅ | ✅ |
-| Create a coupon | ❌ | ❌ | ✅ |
-| View own notifications | ✅ | ✅ | ✅ |
-| Manage users (suspend/role) | ❌ | ❌ | ✅ |
-| View audit logs / dashboard stats | ❌ | ❌ (own-event stats only, via event detail) | ✅ (platform-wide) |
+| Action                            |      Attendee      |                  Organizer                  |                 Admin                  |
+| --------------------------------- | :----------------: | :-----------------------------------------: | :------------------------------------: |
+| Register / Login                  |         ✅         |                     ✅                      | ✅ (seeded only, no self-registration) |
+| Browse / search events            |         ✅         |                     ✅                      |                   ✅                   |
+| Create event                      |         ❌         |                  ✅ (own)                   |                   ✅                   |
+| Update / publish / cancel event   |         ❌         |                ✅ (own only)                |                ✅ (any)                |
+| Delete event (soft)               |         ❌         |                ✅ (own only)                |                ✅ (any)                |
+| Create / update ticket tiers      |         ❌         |               ✅ (own events)               |                   ✅                   |
+| Book tickets                      |         ✅         |                     ✅                      |         ❌ (admins don't buy)          |
+| View own bookings                 |         ✅         |                     ✅                      |                   ✅                   |
+| View an event's bookings (sales)  |         ❌         |               ✅ (own events)               |                ✅ (any)                |
+| Cancel own booking                |         ✅         |                     ✅                      |                   ✅                   |
+| Check in an attendee              |         ❌         |               ✅ (own events)               |                   ✅                   |
+| Join / leave waitlist             |         ✅         |                     ✅                      |                   ❌                   |
+| View waitlist                     |         ❌         |               ✅ (own events)               |                   ✅                   |
+| Leave a review                    | ✅ (attended only) |                     ❌                      |                   ❌                   |
+| Respond to a review               |         ❌         |               ✅ (own events)               |                   ✅                   |
+| Validate a coupon                 |         ✅         |                     ✅                      |                   ✅                   |
+| Create a coupon                   |         ❌         |                     ❌                      |                   ✅                   |
+| View own notifications            |         ✅         |                     ✅                      |                   ✅                   |
+| Manage users (suspend/role)       |         ❌         |                     ❌                      |                   ✅                   |
+| View audit logs / dashboard stats |         ❌         | ❌ (own-event stats only, via event detail) |           ✅ (platform-wide)           |
 
 Enforced via `authenticate` (JWT verification) → `authorize(...roles)` → `isResourceOwner` (for organizer-scoped actions) middleware chain, in that order, on every protected route.
 
@@ -76,21 +80,21 @@ Enforced via `authenticate` (JWT verification) → `authorize(...roles)` → `is
 
 ## 3. Tech Stack
 
-| Category | Technology | Purpose |
-|---|---|---|
-| Runtime / Language | Node.js 18+, TypeScript 5+ | type-safe API development |
-| Framework | Express.js 4+ | REST routing/middleware |
-| Database | PostgreSQL 14+ | primary datastore |
-| ORM | Prisma 5+ | typed queries, migrations, transactions |
-| Validation | Zod 3+ | request-boundary schema validation |
-| Auth | JWT (access + refresh) + bcrypt | stateless auth, hashed passwords |
-| Caching | Redis 7+ (optional but recommended) | event-list caching, rate-limit store |
-| Payments | bKash / Stripe / SSLCommerz (pick one) | real payment processing |
-| File storage | Multer + Cloudinary | banner/profile images |
-| Security | helmet, cors, express-rate-limit | headers, CORS policy, abuse prevention |
-| Logging | winston | structured app/error logs |
-| Docs | Postman collection + this document | |
-| Deployment | Render / Vercel serverless | |
+| Category           | Technology                             | Purpose                                 |
+| ------------------ | -------------------------------------- | --------------------------------------- |
+| Runtime / Language | Node.js 18+, TypeScript 5+             | type-safe API development               |
+| Framework          | Express.js 4+                          | REST routing/middleware                 |
+| Database           | PostgreSQL 14+                         | primary datastore                       |
+| ORM                | Prisma 5+                              | typed queries, migrations, transactions |
+| Validation         | Zod 3+                                 | request-boundary schema validation      |
+| Auth               | JWT (access + refresh) + bcrypt        | stateless auth, hashed passwords        |
+| Caching            | Redis 7+ (optional but recommended)    | event-list caching, rate-limit store    |
+| Payments           | bKash / Stripe / SSLCommerz (pick one) | real payment processing                 |
+| File storage       | Multer + Cloudinary                    | banner/profile images                   |
+| Security           | helmet, cors, express-rate-limit       | headers, CORS policy, abuse prevention  |
+| Logging            | winston                                | structured app/error logs               |
+| Docs               | Postman collection + this document     |                                         |
+| Deployment         | Render / Vercel serverless             |                                         |
 
 ---
 
@@ -503,20 +507,21 @@ model AuditLog {
 
 A few choices here diverge from the earlier drafts on purpose — worth understanding before you build, since they affect how you write the checkout logic.
 
-| Decision | Reasoning |
-|---|---|
-| **Payment is the single source of truth for payment state.** `Booking` has no `paymentStatus` field. | The earlier expanded draft stored payment status on both `Booking` and `Payment`, which can drift out of sync. One source of truth, always joined, never duplicated. |
-| **`TicketTier.sold` + `TicketTier.reserved` (two-phase hold), not a single `remainingQuantity` counter.** | On `POST /bookings`, you *reserve* (increment `reserved`) inside the transaction, not *sell* immediately — the booking isn't paid yet. On payment success, `reserved` → `sold`. On payment failure/timeout, `reserved` is released. Available inventory at any moment = `quantity - sold - reserved`. This is more correct than decrementing on booking creation, because a `PENDING` booking that never pays would otherwise permanently lock inventory. |
-| **No per-ticket QR codes; check-in is booking-level.** | Individually-coded tickets (one QR per seat) are a nice-to-have but roughly double the surface area (a `Ticket` child table, per-unit state machine) for a feature (checking in 3 people from one booking separately) that's genuinely a "future enhancement," not core to demonstrating concurrency-safe inventory. Booking-level check-in (`Booking.status = CHECKED_IN`, one QR per booking) is simpler and still fully demonstrates the pattern. |
-| **Refund policy is a fixed, platform-wide tiered rule (§8.3), not a per-event configurable `refundDeadline`.** | Configurable-per-event refund windows are realistic but add a validation branch to every refund calculation for limited teaching value in this context. A single fixed policy is easier to test and reason about; `Event.allowRefund` still lets an organizer opt out entirely. |
-| **Dropped "nearby events" (geospatial) and "trending events."** | Prisma has no native geospatial query support — `nearby` needs raw SQL (Haversine formula) or a PostGIS extension, which is disproportionate setup cost for one endpoint. "Trending" needs a scoring algorithm with no clear spec. Both are reasonable **future enhancements** (see note in §12) but were cut from the required 44 to keep scope realistic. |
-| **Booking creation is documented as an explicit atomic transaction (§8.1)**, not left implicit. | This is the single most important technical requirement in the whole project — it gets its own worked-through algorithm, not just a request/response pair. |
+| Decision                                                                                                       | Reasoning                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Payment is the single source of truth for payment state.** `Booking` has no `paymentStatus` field.           | The earlier expanded draft stored payment status on both `Booking` and `Payment`, which can drift out of sync. One source of truth, always joined, never duplicated.                                                                                                                                                                                                                                                                                      |
+| **`TicketTier.sold` + `TicketTier.reserved` (two-phase hold), not a single `remainingQuantity` counter.**      | On `POST /bookings`, you _reserve_ (increment `reserved`) inside the transaction, not _sell_ immediately — the booking isn't paid yet. On payment success, `reserved` → `sold`. On payment failure/timeout, `reserved` is released. Available inventory at any moment = `quantity - sold - reserved`. This is more correct than decrementing on booking creation, because a `PENDING` booking that never pays would otherwise permanently lock inventory. |
+| **No per-ticket QR codes; check-in is booking-level.**                                                         | Individually-coded tickets (one QR per seat) are a nice-to-have but roughly double the surface area (a `Ticket` child table, per-unit state machine) for a feature (checking in 3 people from one booking separately) that's genuinely a "future enhancement," not core to demonstrating concurrency-safe inventory. Booking-level check-in (`Booking.status = CHECKED_IN`, one QR per booking) is simpler and still fully demonstrates the pattern.      |
+| **Refund policy is a fixed, platform-wide tiered rule (§8.3), not a per-event configurable `refundDeadline`.** | Configurable-per-event refund windows are realistic but add a validation branch to every refund calculation for limited teaching value in this context. A single fixed policy is easier to test and reason about; `Event.allowRefund` still lets an organizer opt out entirely.                                                                                                                                                                           |
+| **Dropped "nearby events" (geospatial) and "trending events."**                                                | Prisma has no native geospatial query support — `nearby` needs raw SQL (Haversine formula) or a PostGIS extension, which is disproportionate setup cost for one endpoint. "Trending" needs a scoring algorithm with no clear spec. Both are reasonable **future enhancements** (see note in §12) but were cut from the required 44 to keep scope realistic.                                                                                               |
+| **Booking creation is documented as an explicit atomic transaction (§8.1)**, not left implicit.                | This is the single most important technical requirement in the whole project — it gets its own worked-through algorithm, not just a request/response pair.                                                                                                                                                                                                                                                                                                |
 
 ---
 
 ## 6. Global API Conventions
 
 ### 6.1 Base URL & Versioning
+
 ```
 https://<host>/api/v1
 ```
@@ -524,6 +529,7 @@ https://<host>/api/v1
 ### 6.2 Standard Response Envelope
 
 **Success (single resource):**
+
 ```json
 {
   "success": true,
@@ -534,6 +540,7 @@ https://<host>/api/v1
 ```
 
 **Success (paginated list):**
+
 ```json
 {
   "success": true,
@@ -554,13 +561,12 @@ https://<host>/api/v1
 ```
 
 **Error:**
+
 ```json
 {
   "success": false,
   "message": "Human readable error message",
-  "errors": [
-    { "field": "email", "message": "Email is required" }
-  ],
+  "errors": [{ "field": "email", "message": "Email is required" }],
   "code": "VALIDATION_ERROR",
   "timestamp": "2026-09-02T10:30:00Z"
 }
@@ -568,44 +574,46 @@ https://<host>/api/v1
 
 ### 6.3 HTTP Status Codes
 
-| Code | Meaning | Used when |
-|---|---|---|
-| 200 | OK | successful GET/PATCH |
-| 201 | Created | successful POST creating a resource |
-| 204 | No Content | successful DELETE (soft delete) |
-| 400 | Bad Request | validation error |
-| 401 | Unauthorized | missing/invalid/expired token |
-| 402 | Payment Required | payment processing failed |
-| 403 | Forbidden | valid token, wrong role/ownership |
-| 404 | Not Found | resource doesn't exist or is soft-deleted |
-| 409 | Conflict | sold out, duplicate email, overlapping review, cancellation not allowed |
-| 422 | Unprocessable Entity | semantically invalid state transition |
-| 429 | Too Many Requests | rate limit exceeded |
-| 500 | Internal Server Error | unhandled exception |
+| Code | Meaning               | Used when                                                               |
+| ---- | --------------------- | ----------------------------------------------------------------------- |
+| 200  | OK                    | successful GET/PATCH                                                    |
+| 201  | Created               | successful POST creating a resource                                     |
+| 204  | No Content            | successful DELETE (soft delete)                                         |
+| 400  | Bad Request           | validation error                                                        |
+| 401  | Unauthorized          | missing/invalid/expired token                                           |
+| 402  | Payment Required      | payment processing failed                                               |
+| 403  | Forbidden             | valid token, wrong role/ownership                                       |
+| 404  | Not Found             | resource doesn't exist or is soft-deleted                               |
+| 409  | Conflict              | sold out, duplicate email, overlapping review, cancellation not allowed |
+| 422  | Unprocessable Entity  | semantically invalid state transition                                   |
+| 429  | Too Many Requests     | rate limit exceeded                                                     |
+| 500  | Internal Server Error | unhandled exception                                                     |
 
 ### 6.4 Error Codes Reference
 
-| Code | Description | HTTP Status |
-|---|---|---|
-| VALIDATION_ERROR | Input validation failed | 400 |
-| UNAUTHORIZED | Authentication required | 401 |
-| INVALID_TOKEN | Invalid or expired token | 401 |
-| FORBIDDEN | Insufficient permissions | 403 |
-| NOT_FOUND | Resource not found | 404 |
-| CONFLICT | Resource already exists | 409 |
-| INSUFFICIENT_TICKETS | Not enough tickets available | 409 |
-| CANCELLATION_NOT_ALLOWED | Cannot cancel booking | 409 |
-| INVALID_COUPON | Coupon is invalid, expired, or limit reached | 400 |
-| PAYMENT_FAILED | Payment processing failed | 402 |
-| RATE_LIMIT_EXCEEDED | Too many requests | 429 |
-| INTERNAL_SERVER_ERROR | Server error | 500 |
+| Code                     | Description                                  | HTTP Status |
+| ------------------------ | -------------------------------------------- | ----------- |
+| VALIDATION_ERROR         | Input validation failed                      | 400         |
+| UNAUTHORIZED             | Authentication required                      | 401         |
+| INVALID_TOKEN            | Invalid or expired token                     | 401         |
+| FORBIDDEN                | Insufficient permissions                     | 403         |
+| NOT_FOUND                | Resource not found                           | 404         |
+| CONFLICT                 | Resource already exists                      | 409         |
+| INSUFFICIENT_TICKETS     | Not enough tickets available                 | 409         |
+| CANCELLATION_NOT_ALLOWED | Cannot cancel booking                        | 409         |
+| INVALID_COUPON           | Coupon is invalid, expired, or limit reached | 400         |
+| PAYMENT_FAILED           | Payment processing failed                    | 402         |
+| RATE_LIMIT_EXCEEDED      | Too many requests                            | 429         |
+| INTERNAL_SERVER_ERROR    | Server error                                 | 500         |
 
 ### 6.5 Authentication
+
 - Header: `Authorization: Bearer <accessToken>`
 - Access token TTL: 1 hour. Refresh token TTL: 7 days, rotated on use, stored hashed.
 - Passwords hashed with bcrypt, ≥10 salt rounds.
 
 ### 6.6 Common Pagination/Filter Query Params
+
 ```
 ?page=1&limit=20&sortBy=createdAt&sortOrder=desc
 ```
@@ -619,9 +627,11 @@ https://<host>/api/v1
 ### 7.1 Authentication (6)
 
 #### `POST /api/v1/auth/register`
+
 **Auth:** none
 
 Request:
+
 ```json
 {
   "email": "attendee@example.com",
@@ -631,47 +641,64 @@ Request:
   "role": "ATTENDEE"
 }
 ```
+
 Validation: `email` valid + unique; `password` min 8 chars with upper/lower/number; `name` 2–50 chars; `role` in `["ATTENDEE","ORGANIZER"]` (never `ADMIN` via this route).
 
 Success (201):
+
 ```json
 {
   "success": true,
   "message": "User registered successfully",
   "data": {
-    "user": { "id": "usr_123", "email": "attendee@example.com", "name": "John Doe", "role": "ATTENDEE" },
+    "user": {
+      "id": "usr_123",
+      "email": "attendee@example.com",
+      "name": "John Doe",
+      "role": "ATTENDEE"
+    },
     "accessToken": "eyJhbGciOi...",
     "refreshToken": "eyJhbGciOi..."
   }
 }
 ```
+
 Errors: `409/VALIDATION_ERROR` email already exists.
 
 ---
 
 #### `POST /api/v1/auth/login`
+
 **Auth:** none
 
 Request: `{ "email": "attendee@example.com", "password": "SecurePass123!" }`
 
 Success (200):
+
 ```json
 {
   "success": true,
   "message": "Login successful",
   "data": {
-    "user": { "id": "usr_123", "email": "attendee@example.com", "name": "John Doe", "role": "ATTENDEE" },
+    "user": {
+      "id": "usr_123",
+      "email": "attendee@example.com",
+      "name": "John Doe",
+      "role": "ATTENDEE"
+    },
     "accessToken": "eyJhbGciOi...",
     "refreshToken": "eyJhbGciOi...",
     "expiresIn": 3600
   }
 }
 ```
+
 Errors: `401/AUTH_ERROR` invalid credentials; `403` account suspended (`isActive: false`).
 
 ---
 
 #### `POST /api/v1/auth/refresh-token`
+
 **Auth:** none
 
 Request: `{ "refreshToken": "eyJhbGciOi..." }`
@@ -682,6 +709,7 @@ Errors: `401/INVALID_TOKEN` reused/expired refresh token.
 ---
 
 #### `POST /api/v1/auth/logout`
+
 **Auth:** Bearer
 
 Request: `{ "refreshToken": "eyJhbGciOi..." }`
@@ -690,6 +718,7 @@ Success (200): `{ "success": true, "message": "Logged out successfully", "data":
 ---
 
 #### `POST /api/v1/auth/forgot-password`
+
 **Auth:** none
 
 Request: `{ "email": "attendee@example.com" }`
@@ -699,6 +728,7 @@ Success (200): `{ "success": true, "message": "Password reset link sent to your 
 ---
 
 #### `POST /api/v1/auth/reset-password`
+
 **Auth:** none
 
 Request: `{ "token": "reset_token_123", "newPassword": "NewSecurePass123!" }`
@@ -710,9 +740,11 @@ Errors: `400/VALIDATION_ERROR` token invalid or expired.
 ### 7.2 Users / Profile (5)
 
 #### `GET /api/v1/users/me`
+
 **Auth:** Bearer
 
 Success (200):
+
 ```json
 {
   "success": true,
@@ -733,17 +765,20 @@ Success (200):
 ```
 
 #### `PATCH /api/v1/users/me`
+
 **Auth:** Bearer
 
 Request (all optional): `{ "name": "John Updated", "phone": "+8801712345679", "bio": "Updated bio", "notificationPreferences": { "email": true, "sms": true } }`
 Success (200): updated user object (same shape as above).
 
 #### `POST /api/v1/users/me/profile-image`
+
 **Auth:** Bearer — `multipart/form-data`, field `image` (jpg/png/gif, ≤5MB)
 
 Success (200): `{ "success": true, "message": "Profile image updated successfully", "data": { "profileImage": "https://cloudinary.com/users/usr_123/image.jpg" } }`
 
 #### `PATCH /api/v1/users/change-password`
+
 **Auth:** Bearer
 
 Request: `{ "currentPassword": "OldPass123!", "newPassword": "NewPass456!", "confirmNewPassword": "NewPass456!" }`
@@ -751,6 +786,7 @@ Success (200): `{ "success": true, "message": "Password changed successfully", "
 Errors: `400` current password incorrect; `400` confirmation mismatch.
 
 #### `GET /api/v1/users/:id/profile`
+
 **Auth:** none (public)
 
 Success (200): `{ "success": true, "message": "User profile retrieved", "data": { "id": "usr_123", "name": "John Doe", "profileImage": "...", "bio": "...", "totalEvents": 15, "averageRating": 4.5 } }`
@@ -761,9 +797,11 @@ Success (200): `{ "success": true, "message": "User profile retrieved", "data": 
 ### 7.3 Events (6)
 
 #### `POST /api/v1/events`
+
 **Auth:** Bearer — `ORGANIZER`, `ADMIN`
 
 Request:
+
 ```json
 {
   "title": "Tech Conference 2026",
@@ -785,36 +823,47 @@ Request:
   "bannerImage": "https://cloudinary.com/events/banner.jpg"
 }
 ```
+
 Validation: `title` 5–200 chars; `description` 50–5000 chars; `startDate` future; `endDate` after `startDate`. Created with `status: DRAFT` and a server-generated unique `slug`.
 
 Success (201):
+
 ```json
 {
   "success": true,
   "message": "Event created successfully",
-  "data": { "id": "evt_123", "title": "Tech Conference 2026", "slug": "tech-conference-2026", "status": "DRAFT", "organizerId": "usr_456", "createdAt": "2026-09-02T10:30:00Z" }
+  "data": {
+    "id": "evt_123",
+    "title": "Tech Conference 2026",
+    "slug": "tech-conference-2026",
+    "status": "DRAFT",
+    "organizerId": "usr_456",
+    "createdAt": "2026-09-02T10:30:00Z"
+  }
 }
 ```
 
 ---
 
 #### `GET /api/v1/events`
+
 **Auth:** none
 
 Query: `?page=1&limit=20&category=Conference&city=Dhaka&status=PUBLISHED&sortBy=startDate&sortOrder=asc&dateFrom=2026-09-01&dateTo=2026-12-31&priceMin=100&priceMax=500&search=tech`
 
-| Param | Type | Notes |
-|---|---|---|
-| page, limit | number | pagination |
-| category, subCategory, city, status | string | exact-match filters |
-| sortBy, sortOrder | string | e.g. `startDate`, `asc`/`desc` |
-| dateFrom, dateTo | date | range on `startDate` |
-| priceMin, priceMax | number | filters on lowest tier price |
-| search | string | case-insensitive match on `title`, `venue`, `description` |
+| Param                               | Type   | Notes                                                     |
+| ----------------------------------- | ------ | --------------------------------------------------------- |
+| page, limit                         | number | pagination                                                |
+| category, subCategory, city, status | string | exact-match filters                                       |
+| sortBy, sortOrder                   | string | e.g. `startDate`, `asc`/`desc`                            |
+| dateFrom, dateTo                    | date   | range on `startDate`                                      |
+| priceMin, priceMax                  | number | filters on lowest tier price                              |
+| search                              | string | case-insensitive match on `title`, `venue`, `description` |
 
 Public callers only ever see `status: PUBLISHED`; organizers/admins may pass `status=` to see their own `DRAFT`/`CANCELLED` events.
 
 Success (200):
+
 ```json
 {
   "success": true,
@@ -835,7 +884,14 @@ Success (200):
         "averageRating": 4.5
       }
     ],
-    "pagination": { "page": 1, "limit": 20, "total": 150, "totalPages": 8, "hasNext": true, "hasPrev": false }
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 150,
+      "totalPages": 8,
+      "hasNext": true,
+      "hasPrev": false
+    }
   }
 }
 ```
@@ -843,9 +899,11 @@ Success (200):
 ---
 
 #### `GET /api/v1/events/:id`
+
 **Auth:** none
 
 Success (200):
+
 ```json
 {
   "success": true,
@@ -861,22 +919,50 @@ Success (200):
     "startDate": "2026-12-15T09:00:00Z",
     "endDate": "2026-12-16T18:00:00Z",
     "status": "PUBLISHED",
-    "organizer": { "id": "usr_456", "name": "Tech Corp", "profileImage": "..." },
+    "organizer": {
+      "id": "usr_456",
+      "name": "Tech Corp",
+      "profileImage": "..."
+    },
     "ticketTiers": [
-      { "id": "tier_123", "name": "Early Bird", "price": 500, "quantity": 50, "sold": 5, "reserved": 2, "available": 43, "status": "ACTIVE" },
-      { "id": "tier_124", "name": "VIP", "price": 2000, "quantity": 20, "sold": 18, "reserved": 1, "available": 1, "status": "ACTIVE" }
+      {
+        "id": "tier_123",
+        "name": "Early Bird",
+        "price": 500,
+        "quantity": 50,
+        "sold": 5,
+        "reserved": 2,
+        "available": 43,
+        "status": "ACTIVE"
+      },
+      {
+        "id": "tier_124",
+        "name": "VIP",
+        "price": 2000,
+        "quantity": 20,
+        "sold": 18,
+        "reserved": 1,
+        "available": 1,
+        "status": "ACTIVE"
+      }
     ],
-    "statistics": { "totalBookings": 23, "averageRating": 4.5, "totalReviews": 23 },
+    "statistics": {
+      "totalBookings": 23,
+      "averageRating": 4.5,
+      "totalReviews": 23
+    },
     "createdAt": "2026-01-01T10:00:00Z"
   }
 }
 ```
+
 `available` is always computed as `quantity - sold - reserved`, never stored directly.
 Errors: `404` not found / soft-deleted.
 
 ---
 
 #### `PATCH /api/v1/events/:id`
+
 **Auth:** Bearer — `ORGANIZER` (owner), `ADMIN`
 
 Request (partial): `{ "description": "Updated description", "venue": "Updated Venue" }`
@@ -886,6 +972,7 @@ Errors: `403` not owner; `409` cannot edit an event that has already started.
 ---
 
 #### `PATCH /api/v1/events/:id/status`
+
 **Auth:** Bearer — `ORGANIZER` (owner), `ADMIN`
 
 Request: `{ "status": "PUBLISHED" }` — one of `DRAFT | PUBLISHED | CANCELLED | COMPLETED | POSTPONED`
@@ -895,6 +982,7 @@ Business rule: transitioning to `CANCELLED` triggers full refunds for all `CONFI
 ---
 
 #### `DELETE /api/v1/events/:id`
+
 **Auth:** Bearer — `ORGANIZER` (owner), `ADMIN`
 Soft delete only (`deletedAt` set).
 
@@ -906,9 +994,11 @@ Errors: `409` event has active `CONFIRMED` bookings less than 7 days before star
 ### 7.4 Ticket Tiers (3)
 
 #### `POST /api/v1/events/:eventId/ticket-tiers`
+
 **Auth:** Bearer — `ORGANIZER` (owner), `ADMIN`
 
 Request:
+
 ```json
 {
   "name": "Early Bird",
@@ -922,9 +1012,11 @@ Request:
   "includes": ["Lunch", "Swag Bag"]
 }
 ```
+
 Success (201): `{ "success": true, "message": "Ticket tier added successfully", "data": { "id": "tier_123", "eventId": "evt_123", "name": "Early Bird", "price": 500, "quantity": 50, "sold": 0, "reserved": 0, "available": 50, "status": "ACTIVE" } }`
 
 #### `PATCH /api/v1/ticket-tiers/:id`
+
 **Auth:** Bearer — `ORGANIZER` (owner), `ADMIN`
 
 Request (partial): `{ "price": 600, "quantity": 60, "status": "PAUSED" }`
@@ -933,6 +1025,7 @@ Success (200): updated tier object.
 Errors: `422` attempt to lower quantity below committed count.
 
 #### `GET /api/v1/events/:id/ticket-tiers`
+
 **Auth:** none
 Success (200): `{ "success": true, "message": "Ticket tiers retrieved", "data": { "items": [ /* tier objects, shape as above */ ] } }`
 
@@ -941,9 +1034,11 @@ Success (200): `{ "success": true, "message": "Ticket tiers retrieved", "data": 
 ### 7.5 Bookings — ⭐ Concurrency-Critical (5)
 
 #### `POST /api/v1/events/:eventId/book`
+
 **Auth:** Bearer — `ATTENDEE`, `ORGANIZER` (buying, not for own event)
 
 Request:
+
 ```json
 {
   "ticketTierId": "tier_123",
@@ -957,6 +1052,7 @@ Request:
 **Server-side flow — see §8.1 for the full transaction algorithm.** In short: lock the tier row, verify sale window + availability + per-user limit, apply coupon (server-validated, never trust a client-sent discount amount), increment `reserved`, create the `Booking` (`status: PENDING`), then return a payment redirect.
 
 Success (201):
+
 ```json
 {
   "success": true,
@@ -981,7 +1077,9 @@ Success (201):
   }
 }
 ```
+
 Errors:
+
 - `409/INSUFFICIENT_TICKETS` — `{ "success": false, "message": "Not enough tickets available", "errors": [{ "field": "tier_123", "message": "Only 1 ticket remaining" }], "code": "INSUFFICIENT_TICKETS" }`
 - `422` — sale window closed, or `maxTicketsPerUser`/tier `maxPurchase` exceeded
 - `400/INVALID_COUPON` — coupon invalid, expired, or per-user limit reached
@@ -989,6 +1087,7 @@ Errors:
 ---
 
 #### `GET /api/v1/users/bookings`
+
 **Auth:** Bearer
 Query: `?status=CONFIRMED&page=1&limit=20&eventId=evt_123`
 
@@ -997,9 +1096,11 @@ Success (200): paginated list of the caller's bookings (event summary + tier + s
 ---
 
 #### `GET /api/v1/bookings/:id`
+
 **Auth:** Bearer (booking owner, the event's organizer, or admin)
 
 Success (200):
+
 ```json
 {
   "success": true,
@@ -1007,14 +1108,23 @@ Success (200):
   "data": {
     "id": "bkg_123",
     "bookingNumber": "BK-20260902-ABCDEF",
-    "event": { "id": "evt_123", "title": "Tech Conference 2026", "venue": "...", "startDate": "2026-12-15T09:00:00Z" },
+    "event": {
+      "id": "evt_123",
+      "title": "Tech Conference 2026",
+      "venue": "...",
+      "startDate": "2026-12-15T09:00:00Z"
+    },
     "ticketTier": { "id": "tier_123", "name": "Early Bird", "price": 500 },
     "quantity": 2,
     "totalPrice": 1000,
     "discountAmount": 100,
     "finalAmount": 900,
     "status": "CONFIRMED",
-    "payment": { "method": "STRIPE", "status": "SUCCESS", "transactionId": "pi_3P..." },
+    "payment": {
+      "method": "STRIPE",
+      "status": "SUCCESS",
+      "transactionId": "pi_3P..."
+    },
     "checkedInAt": null,
     "createdAt": "2026-09-02T12:00:00Z"
   }
@@ -1024,6 +1134,7 @@ Success (200):
 ---
 
 #### `PATCH /api/v1/bookings/:id/cancel`
+
 **Auth:** Bearer (owner), `ORGANIZER` (own event), `ADMIN`
 
 Request: `{ "cancellationReason": "Schedule conflict" }`
@@ -1036,6 +1147,7 @@ Errors: `409/CANCELLATION_NOT_ALLOWED` — event started, or booking already `CH
 ---
 
 #### `POST /api/v1/bookings/:id/check-in`
+
 **Auth:** Bearer — `ORGANIZER` (own event), `ADMIN`
 
 Request: `{ "qrCode": "scan_data_here" }` (encodes the `bookingNumber`)
@@ -1048,6 +1160,7 @@ Errors: `409` already checked in; `422` booking not `CONFIRMED` (e.g., still `PE
 ### 7.6 Payments (3)
 
 #### `POST /api/v1/payments/initiate`
+
 **Auth:** Bearer (booking owner)
 
 Request: `{ "bookingId": "bkg_123", "method": "STRIPE" }`
@@ -1058,9 +1171,11 @@ Success (201): `{ "success": true, "message": "Payment initiated successfully", 
 ---
 
 #### `POST /api/v1/payments/webhook`
+
 **Auth:** none — verified via provider signature header (e.g. `Stripe-Signature`)
 
 Request (provider-shaped payload):
+
 ```json
 {
   "transactionId": "pi_3P...",
@@ -1069,6 +1184,7 @@ Request (provider-shaped payload):
   "metadata": { "bookingId": "bkg_123" }
 }
 ```
+
 **Server-side flow (transaction):** verify signature → look up `Booking` by `metadata.bookingId` → on success: `Payment.status = SUCCESS`, move the tier's `reserved` units to `sold`, `Booking.status = CONFIRMED` → on failure: `Payment.status = FAILED`, release `reserved` back to available, `Booking.status = CANCELLED` → write `AuditLog` either way.
 
 Success (200): `{ "success": true, "message": "Webhook processed successfully", "data": null }`
@@ -1077,6 +1193,7 @@ Errors: `400` invalid signature (reject, log internally, don't leak details to t
 ---
 
 #### `GET /api/v1/payments/:id/status`
+
 **Auth:** Bearer (booking owner or admin)
 
 Success (200): `{ "success": true, "message": "Payment status retrieved", "data": { "paymentId": "pay_123", "status": "SUCCESS", "amount": 900, "method": "STRIPE", "transactionId": "pi_3P...", "createdAt": "2026-09-02T12:00:00Z" } }`
@@ -1086,6 +1203,7 @@ Success (200): `{ "success": true, "message": "Payment status retrieved", "data"
 ### 7.7 Waitlist (3)
 
 #### `POST /api/v1/events/:id/waitlist`
+
 **Auth:** Bearer — `ATTENDEE`, `ORGANIZER` (buying-side)
 
 Request: `{ "ticketTierId": "tier_124", "quantity": 2 }`
@@ -1095,11 +1213,13 @@ Success (201): `{ "success": true, "message": "Added to waitlist successfully", 
 Errors: `409` already on the waitlist for this tier (unique constraint); `422` tier isn't actually sold out.
 
 #### `GET /api/v1/events/:id/waitlist`
+
 **Auth:** Bearer — `ORGANIZER` (owner), `ADMIN`
 
 Success (200): `{ "success": true, "message": "Waitlist retrieved", "data": { "items": [ { "id": "wlist_123", "user": { "id": "usr_789", "name": "Alice" }, "quantity": 2, "status": "WAITING", "position": 1, "createdAt": "2026-09-02T15:00:00Z" } ], "total": 10 } }`
 
 #### `DELETE /api/v1/waitlist/:id`
+
 **Auth:** Bearer (own entry)
 Success (200): `{ "success": true, "message": "Removed from waitlist successfully", "data": null }`
 
@@ -1108,6 +1228,7 @@ Success (200): `{ "success": true, "message": "Removed from waitlist successfull
 ### 7.8 Reviews (3)
 
 #### `POST /api/v1/events/:eventId/review`
+
 **Auth:** Bearer — `ATTENDEE` with a `CHECKED_IN` booking for this event
 
 Request: `{ "bookingId": "bkg_123", "rating": 5, "comment": "Amazing experience! Great organization." }`
@@ -1115,25 +1236,40 @@ Success (201): `{ "success": true, "message": "Review submitted successfully", "
 Errors: `403` no checked-in booking for this event; `409` this booking already reviewed (one review per booking, enforced by the `bookingId @unique` on `Review`).
 
 #### `GET /api/v1/events/:id/reviews`
+
 **Auth:** none
 Query: `?page=1&limit=10&rating=5`
 
 Success (200):
+
 ```json
 {
   "success": true,
   "message": "Reviews retrieved",
   "data": {
     "items": [
-      { "id": "rev_123", "user": { "id": "usr_789", "name": "Alice" }, "rating": 5, "comment": "Amazing experience!", "organizerResponse": "Thank you!", "responseDate": "2026-09-03T10:00:00Z", "createdAt": "2026-09-02T16:00:00Z" }
+      {
+        "id": "rev_123",
+        "user": { "id": "usr_789", "name": "Alice" },
+        "rating": 5,
+        "comment": "Amazing experience!",
+        "organizerResponse": "Thank you!",
+        "responseDate": "2026-09-03T10:00:00Z",
+        "createdAt": "2026-09-02T16:00:00Z"
+      }
     ],
-    "statistics": { "averageRating": 4.5, "totalReviews": 23, "ratingDistribution": { "5": 15, "4": 5, "3": 2, "2": 1, "1": 0 } },
+    "statistics": {
+      "averageRating": 4.5,
+      "totalReviews": 23,
+      "ratingDistribution": { "5": 15, "4": 5, "3": 2, "2": 1, "1": 0 }
+    },
     "pagination": { "page": 1, "limit": 10, "total": 23, "totalPages": 3 }
   }
 }
 ```
 
 #### `POST /api/v1/reviews/:id/respond`
+
 **Auth:** Bearer — `ORGANIZER` (owner of the event), `ADMIN`
 
 Request: `{ "response": "Thank you for your valuable feedback!" }`
@@ -1145,6 +1281,7 @@ Errors: `409` review already has a response (one response per review).
 ### 7.9 Coupons (2)
 
 #### `POST /api/v1/coupons/validate`
+
 **Auth:** Bearer
 
 Request: `{ "code": "EARLY50", "eventId": "evt_123", "ticketTierId": "tier_123", "quantity": 2 }`
@@ -1152,9 +1289,11 @@ Success (200): `{ "success": true, "message": "Coupon is valid", "data": { "code
 Errors: `400/INVALID_COUPON` expired, usage limit reached, per-user limit reached, or `minPurchase` not met.
 
 #### `POST /api/v1/admin/coupons`
+
 **Auth:** Bearer — `ADMIN`
 
 Request:
+
 ```json
 {
   "code": "EARLY50",
@@ -1169,6 +1308,7 @@ Request:
   "endDate": "2026-10-01T00:00:00Z"
 }
 ```
+
 Success (201): `{ "success": true, "message": "Coupon created successfully", "data": { "id": "coup_123", "code": "EARLY50", "discountValue": 50, "isActive": true, "createdAt": "2026-09-02T19:00:00Z" } }`
 
 ---
@@ -1176,16 +1316,19 @@ Success (201): `{ "success": true, "message": "Coupon created successfully", "da
 ### 7.10 Notifications (3)
 
 #### `GET /api/v1/users/notifications`
+
 **Auth:** Bearer
 Query: `?page=1&limit=20&isRead=false`
 
 Success (200): `{ "success": true, "message": "Notifications retrieved", "data": { "items": [ { "id": "not_123", "type": "BOOKING_CONFIRMATION", "title": "Booking Confirmed", "message": "Your booking for Tech Conference 2026 has been confirmed", "isRead": false, "createdAt": "2026-09-02T12:05:00Z" } ], "unreadCount": 5, "pagination": { "page": 1, "limit": 20, "total": 25, "totalPages": 2 } } }`
 
 #### `PATCH /api/v1/notifications/:id/read`
+
 **Auth:** Bearer
 Success (200): `{ "success": true, "message": "Notification marked as read", "data": null }`
 
 #### `PATCH /api/v1/notifications/read-all`
+
 **Auth:** Bearer
 Success (200): `{ "success": true, "message": "All notifications marked as read", "data": null }`
 
@@ -1194,41 +1337,65 @@ Success (200): `{ "success": true, "message": "All notifications marked as read"
 ### 7.11 Admin (5)
 
 #### `GET /api/v1/admin/users`
+
 **Auth:** Bearer — `ADMIN`
 Query: `?role=ORGANIZER&isActive=true&page=1&limit=20&search=john`
 
 Success (200): `{ "success": true, "message": "Users retrieved", "data": { "items": [ { "id": "usr_123", "email": "user@example.com", "name": "John Doe", "role": "ATTENDEE", "isActive": true, "createdAt": "2026-01-01T10:00:00Z", "totalBookings": 15 } ], "pagination": { "page": 1, "limit": 20, "total": 100, "totalPages": 5 } } }`
 
 #### `PATCH /api/v1/admin/users/:id/role`
+
 **Auth:** Bearer — `ADMIN`
 Request: `{ "role": "ORGANIZER" }`
 Success (200): `{ "success": true, "message": "User role updated successfully", "data": { "id": "usr_123", "role": "ORGANIZER", "updatedAt": "2026-09-02T17:00:00Z" } }`
 (Writes `AuditLog` with action `ROLE_CHANGE`.)
 
 #### `PATCH /api/v1/admin/users/:id/suspend`
+
 **Auth:** Bearer — `ADMIN`
 Request: `{ "suspend": true, "reason": "Violation of terms of service" }`
 Success (200): `{ "success": true, "message": "User suspended successfully", "data": { "id": "usr_123", "isActive": false, "suspensionReason": "Violation of terms of service" } }`
 (A suspended user's active sessions are invalidated; login is blocked at the auth layer.)
 
 #### `GET /api/v1/admin/dashboard-stats`
+
 **Auth:** Bearer — `ADMIN`
 
 Success (200):
+
 ```json
 {
   "success": true,
   "message": "Dashboard statistics",
   "data": {
-    "overview": { "totalUsers": 12500, "totalOrganizers": 450, "totalEvents": 345, "totalBookings": 7890, "totalRevenue": 1250000, "totalRefunds": 45000 },
-    "recentActivity": { "newUsersToday": 45, "newEventsToday": 12, "newBookingsToday": 120 },
-    "popularCategories": [ { "category": "Concert", "count": 1200, "revenue": 600000 } ],
-    "platformHealth": { "activeUsers": 3500, "conversionRate": 15.5, "refundRate": 3.5, "averageRating": 4.2 }
+    "overview": {
+      "totalUsers": 12500,
+      "totalOrganizers": 450,
+      "totalEvents": 345,
+      "totalBookings": 7890,
+      "totalRevenue": 1250000,
+      "totalRefunds": 45000
+    },
+    "recentActivity": {
+      "newUsersToday": 45,
+      "newEventsToday": 12,
+      "newBookingsToday": 120
+    },
+    "popularCategories": [
+      { "category": "Concert", "count": 1200, "revenue": 600000 }
+    ],
+    "platformHealth": {
+      "activeUsers": 3500,
+      "conversionRate": 15.5,
+      "refundRate": 3.5,
+      "averageRating": 4.2
+    }
   }
 }
 ```
 
 #### `GET /api/v1/admin/audit-logs`
+
 **Auth:** Bearer — `ADMIN`
 Query: `?entityType=Booking&action=CANCEL&userId=usr_123&from=2026-09-01&to=2026-09-30&page=1&limit=50`
 
@@ -1272,26 +1439,30 @@ COMMIT
 If any abort condition triggers, the entire transaction rolls back — no partial holds, no orphaned `reserved` counts.
 
 ### 8.2 Reservation Expiry
+
 A `PENDING` booking that receives no successful payment webhook within **15 minutes** is expired by a scheduled job: `Booking.status → EXPIRED`, and the tier's `reserved` count is released back to available. This prevents abandoned checkouts from permanently locking inventory.
 
 ### 8.3 Refund Policy (platform-wide, fixed)
 
-| Time before event start | Refund |
-|---|---|
-| More than 7 days | 100% |
-| Between 24 hours and 7 days | 50% |
-| Less than 24 hours | 0% (no refund) |
+| Time before event start                                | Refund                        |
+| ------------------------------------------------------ | ----------------------------- |
+| More than 7 days                                       | 100%                          |
+| Between 24 hours and 7 days                            | 50%                           |
+| Less than 24 hours                                     | 0% (no refund)                |
 | Event already started, or booking already `CHECKED_IN` | Cancellation blocked entirely |
 
 `Event.allowRefund = false` blocks all cancellations for that event regardless of timing (organizer opt-out, e.g. for non-refundable ticket types).
 
 ### 8.4 Waitlist Conversion
+
 When a `CONFIRMED` booking is cancelled and frees up inventory:
+
 1. Find the oldest `WAITING` waitlist entry for that tier where `quantity <= freed quantity`.
 2. Move that entry to `NOTIFIED`, set `offerExpiresAt = now + 2 hours`, increment the tier's `reserved` by the offered quantity (holding it for them), and create a `Notification` (`type: WAITLIST_OFFER`).
 3. If the user books within the window, the entry moves to `CONVERTED`. If the window lapses, a scheduled job moves it to `EXPIRED`, releases the `reserved` hold, and repeats step 1 for the next entry in line.
 
 ### 8.5 Coupon Validation Rules
+
 - `now` must be within `[startDate, endDate]` and `isActive = true`.
 - `usedCount < usageLimit` (if `usageLimit` is set).
 - The requesting user's own usage count for this code < `perUserLimit`.
@@ -1299,15 +1470,19 @@ When a `CONFIRMED` booking is cancelled and frees up inventory:
 - Computed discount is capped at `maxDiscount` (if set) even for `PERCENTAGE` type.
 
 ### 8.6 Pricing Integrity
+
 Total and final amounts are **always** computed server-side from the current `TicketTier.price` and validated `Coupon` at the moment of booking — client-submitted prices/discounts are never trusted.
 
 ### 8.7 Soft Deletes
+
 `User`, `Event`, `TicketTier`, `Booking`, `Payment`, `Review`, `Waitlist`, `Coupon`, `Notification` all use `deletedAt: DateTime?`. Every read query filters `deletedAt: null` by default; hard deletes are never performed on these tables.
 
 ### 8.8 Audit Logging
+
 Every state-changing admin/organizer action writes an `AuditLog` row using the `AuditAction` enum: event publish/cancel, ticket tier price/quantity changes, booking cancellation/refund, check-in, user role change/suspension, coupon creation, waitlist conversion.
 
 ### 8.9 Role & Ownership Enforcement
+
 An `ORGANIZER` may only modify resources where `event.organizerId === req.user.id`, checked via a dedicated `isResourceOwner` middleware — never left to controller-level logic alone. `ADMIN` bypasses ownership checks, but every bypass is still audit-logged.
 
 ---
@@ -1317,12 +1492,12 @@ An `ORGANIZER` may only modify resources where `event.organizerId === req.user.i
 - **Security:** helmet for headers; CORS restricted to `CLIENT_URL`; bcrypt (≥10 rounds); JWT secrets in env vars only, never in source control.
 - **Rate limiting** (`express-rate-limit`):
 
-| Scope | Window | Max requests |
-|---|---|---|
-| General API | 1 min | 100 |
-| Auth endpoints | 1 min | 5 |
-| Booking creation | 1 min | 10 |
-| Payment endpoints | 1 min | 3 |
+| Scope             | Window | Max requests |
+| ----------------- | ------ | ------------ |
+| General API       | 1 min  | 100          |
+| Auth endpoints    | 1 min  | 5            |
+| Booking creation  | 1 min  | 10           |
+| Payment endpoints | 1 min  | 3            |
 
 - **Validation:** every request body/query validated with Zod at the route boundary; invalid input never reaches the service layer.
 - **Performance:** indexes as declared in the schema (`Event(city, status)`, `Event(startDate, status)`, `Booking(userId, status)`, `Booking(eventId, status)`, `TicketTier(eventId)`, etc.). Use Prisma `select` to avoid over-fetching on list endpoints.
@@ -1448,4 +1623,5 @@ event-ticket-platform/
 ---
 
 ### Deferred to "Future Enhancements" (not required, noted for completeness)
+
 Geospatial "nearby events" search (needs raw SQL/PostGIS), a "trending events" scoring algorithm, per-seat QR ticketing, real-time WebSocket notifications, multi-language support, and multi-currency support were all in the earlier expanded draft but are intentionally out of scope here — see §5 for why.

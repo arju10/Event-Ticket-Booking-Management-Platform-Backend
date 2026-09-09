@@ -6,7 +6,11 @@ import { prisma } from "../config/db";
 // Verifies the Bearer access token and attaches `req.user`. Also re-checks
 // the user is still active, so a suspended account is locked out immediately
 // even if their token has not expired yet.
-export async function authenticate(req: Request, _res: Response, next: NextFunction) {
+export async function authenticate(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+) {
   try {
     const header = req.headers.authorization;
     if (!header?.startsWith("Bearer ")) {

@@ -4,8 +4,16 @@ import { buildPaginationMeta, parsePagination } from "../../types/common.types";
 import { writeAuditLog } from "../../lib/audit";
 import { Prisma } from "../../generated/prisma";
 
-async function listUsers(filters: { role?: string; isActive?: boolean; page: number; limit: number; search?: string }) {
-  const { page, limit, skip } = parsePagination(filters as unknown as Record<string, unknown>);
+async function listUsers(filters: {
+  role?: string;
+  isActive?: boolean;
+  page: number;
+  limit: number;
+  search?: string;
+}) {
+  const { page, limit, skip } = parsePagination(
+    filters as unknown as Record<string, unknown>,
+  );
   const where: Prisma.UserWhereInput = { deletedAt: null };
   if (filters.role) where.role = filters.role as Prisma.UserWhereInput["role"];
   if (filters.isActive !== undefined) where.isActive = filters.isActive;
@@ -20,7 +28,15 @@ async function listUsers(filters: { role?: string; isActive?: boolean; page: num
     prisma.user.count({ where }),
     prisma.user.findMany({
       where,
-      select: { id: true, email: true, name: true, role: true, isActive: true, createdAt: true, _count: { select: { bookings: true } } },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        _count: { select: { bookings: true } },
+      },
       orderBy: { createdAt: "desc" },
       skip,
       take: limit,
@@ -41,10 +57,15 @@ async function listUsers(filters: { role?: string; isActive?: boolean; page: num
 }
 
 async function updateUserRole(userId: string, role: string, actorId: string) {
-  const user = await prisma.user.findFirst({ where: { id: userId, deletedAt: null } });
+  const user = await prisma.user.findFirst({
+    where: { id: userId, deletedAt: null },
+  });
   if (!user) throw ApiError.notFound("User not found");
 
-  const updated = await prisma.user.update({ where: { id: userId }, data: { role: role as Prisma.UserUpdateInput["role"] } });
+  const updated = await prisma.user.update({
+    where: { id: userId },
+    data: { role: role as Prisma.UserUpdateInput["role"] },
+  });
   await writeAuditLog({
     userId: actorId,
     action: "ROLE_CHANGE",
@@ -57,11 +78,21 @@ async function updateUserRole(userId: string, role: string, actorId: string) {
   return { id: updated.id, role: updated.role, updatedAt: updated.updatedAt };
 }
 
-async function suspendUser(userId: string, suspend: boolean, reason: string, actorId: string) {
-  const user = await prisma.user.findFirst({ where: { id: userId, deletedAt: null } });
+async function suspendUser(
+  userId: string,
+  suspend: boolean,
+  reason: string,
+  actorId: string,
+) {
+  const user = await prisma.user.findFirst({
+    where: { id: userId, deletedAt: null },
+  });
   if (!user) throw ApiError.notFound("User not found");
 
-  const updated = await prisma.user.update({ where: { id: userId }, data: { isActive: !suspend } });
+  const updated = await prisma.user.update({
+    where: { id: userId },
+    data: { isActive: !suspend },
+  });
   await writeAuditLog({
     userId: actorId,
     action: "SUSPEND",
@@ -70,7 +101,11 @@ async function suspendUser(userId: string, suspend: boolean, reason: string, act
     newValues: { isActive: !suspend, reason },
   });
 
-  return { id: updated.id, isActive: updated.isActive, suspensionReason: suspend ? reason : null };
+  return {
+    id: updated.id,
+    isActive: updated.isActive,
+    suspensionReason: suspend ? reason : null,
+  };
 }
 
 async function getDashboardStats() {
@@ -94,27 +129,57 @@ async function getDashboardStats() {
     prisma.user.count({ where: { role: "ORGANIZER", deletedAt: null } }),
     prisma.event.count({ where: { deletedAt: null } }),
     prisma.booking.count({ where: { deletedAt: null } }),
-    prisma.booking.aggregate({ where: { status: { in: ["CONFIRMED", "CHECKED_IN"] } }, _sum: { finalAmount: true } }),
-    prisma.booking.aggregate({ where: { status: { in: ["REFUNDED", "PARTIALLY_REFUNDED"] } }, _sum: { refundAmount: true } }),
+    prisma.booking.aggregate({
+      where: { status: { in: ["CONFIRMED", "CHECKED_IN"] } },
+      _sum: { finalAmount: true },
+    }),
+    prisma.booking.aggregate({
+      where: { status: { in: ["REFUNDED", "PARTIALLY_REFUNDED"] } },
+      _sum: { refundAmount: true },
+    }),
     prisma.user.count({ where: { createdAt: { gte: startOfDay } } }),
     prisma.event.count({ where: { createdAt: { gte: startOfDay } } }),
     prisma.booking.count({ where: { createdAt: { gte: startOfDay } } }),
-    prisma.event.groupBy({ by: ["category"], where: { deletedAt: null }, _count: true }),
+    prisma.event.groupBy({
+      by: ["category"],
+      where: { deletedAt: null },
+      _count: true,
+    }),
   ]);
 
   const totalRevenue = Number(revenueAgg._sum.finalAmount ?? 0);
   const totalRefunds = Number(refundAgg._sum.refundAmount ?? 0);
 
-  const recentBookings = await prisma.booking.count({ where: { createdAt: { gte: thirtyDaysAgo } } });
+  const recentBookings = await prisma.booking.count({
+    where: { createdAt: { gte: thirtyDaysAgo } },
+  });
 
   return {
-    overview: { totalUsers, totalOrganizers, totalEvents, totalBookings, totalRevenue, totalRefunds },
+    overview: {
+      totalUsers,
+      totalOrganizers,
+      totalEvents,
+      totalBookings,
+      totalRevenue,
+      totalRefunds,
+    },
     recentActivity: { newUsersToday, newEventsToday, newBookingsToday },
-    popularCategories: categoryGroups.map((c) => ({ category: c.category, count: c._count })),
+    popularCategories: categoryGroups.map((c) => ({
+      category: c.category,
+      count: c._count,
+    })),
     platformHealth: {
       activeUsers: totalUsers,
-      conversionRate: totalBookings > 0 ? Number(((recentBookings / totalBookings) * 100).toFixed(1)) : 0,
-      refundRate: totalRevenue > 0 ? Number(((totalRefunds / (totalRevenue + totalRefunds)) * 100).toFixed(1)) : 0,
+      conversionRate:
+        totalBookings > 0
+          ? Number(((recentBookings / totalBookings) * 100).toFixed(1))
+          : 0,
+      refundRate:
+        totalRevenue > 0
+          ? Number(
+              ((totalRefunds / (totalRevenue + totalRefunds)) * 100).toFixed(1),
+            )
+          : 0,
     },
   };
 }
@@ -128,10 +193,13 @@ async function getAuditLogs(filters: {
   page: number;
   limit: number;
 }) {
-  const { page, limit, skip } = parsePagination(filters as unknown as Record<string, unknown>);
+  const { page, limit, skip } = parsePagination(
+    filters as unknown as Record<string, unknown>,
+  );
   const where: Prisma.AuditLogWhereInput = {};
   if (filters.entityType) where.entityType = filters.entityType;
-  if (filters.action) where.action = filters.action as Prisma.AuditLogWhereInput["action"];
+  if (filters.action)
+    where.action = filters.action as Prisma.AuditLogWhereInput["action"];
   if (filters.userId) where.userId = filters.userId;
   if (filters.from || filters.to) {
     where.createdAt = {
@@ -154,4 +222,10 @@ async function getAuditLogs(filters: {
   return { items: logs, pagination: buildPaginationMeta(total, page, limit) };
 }
 
-export const adminService = { listUsers, updateUserRole, suspendUser, getDashboardStats, getAuditLogs };
+export const adminService = {
+  listUsers,
+  updateUserRole,
+  suspendUser,
+  getDashboardStats,
+  getAuditLogs,
+};

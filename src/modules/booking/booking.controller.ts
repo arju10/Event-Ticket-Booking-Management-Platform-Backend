@@ -5,10 +5,18 @@ import { bookingService } from "./booking.service";
 import { paymentService } from "../payment/payment.service";
 
 const createBooking = catchAsync(async (req: Request, res: Response) => {
-  const booking = await bookingService.createBooking(req.params.eventId, req.user!.id, req.body);
+  const booking = await bookingService.createBooking(
+    req.params.eventId,
+    req.user!.id,
+    req.body,
+  );
   // Immediately open a payment session so the client gets one round trip
   // from "book" to "pay" (mirrors POST /payments/initiate under the hood).
-  const payment = await paymentService.initiatePayment(booking.id, req.user!.id, "STRIPE");
+  const payment = await paymentService.initiatePayment(
+    booking.id,
+    req.user!.id,
+    "STRIPE",
+  );
 
   sendSuccess(res, 201, "Booking created successfully", {
     booking: {
@@ -30,12 +38,15 @@ const createBooking = catchAsync(async (req: Request, res: Response) => {
 
 const listMyBookings = catchAsync(async (req: Request, res: Response) => {
   const q = req.query as Record<string, string>;
-  const { items, pagination } = await bookingService.listMyBookings(req.user!.id, {
-    status: q.status,
-    page: Number(q.page) || 1,
-    limit: Number(q.limit) || 20,
-    eventId: q.eventId,
-  });
+  const { items, pagination } = await bookingService.listMyBookings(
+    req.user!.id,
+    {
+      status: q.status,
+      page: Number(q.page) || 1,
+      limit: Number(q.limit) || 20,
+      eventId: q.eventId,
+    },
+  );
   sendPaginated(res, "Bookings retrieved", items, pagination);
 });
 
@@ -45,13 +56,27 @@ const getBooking = catchAsync(async (req: Request, res: Response) => {
 });
 
 const cancelBooking = catchAsync(async (req: Request, res: Response) => {
-  const result = await bookingService.cancelBooking(req.params.id, req.user!, req.body.cancellationReason);
+  const result = await bookingService.cancelBooking(
+    req.params.id,
+    req.user!,
+    req.body.cancellationReason,
+  );
   sendSuccess(res, 200, "Booking cancelled successfully", result);
 });
 
 const checkIn = catchAsync(async (req: Request, res: Response) => {
-  const result = await bookingService.checkIn(req.params.id, req.user!.id, req.body.qrCode);
+  const result = await bookingService.checkIn(
+    req.params.id,
+    req.user!.id,
+    req.body.qrCode,
+  );
   sendSuccess(res, 200, "Check-in successful", result);
 });
 
-export const bookingController = { createBooking, listMyBookings, getBooking, cancelBooking, checkIn };
+export const bookingController = {
+  createBooking,
+  listMyBookings,
+  getBooking,
+  cancelBooking,
+  checkIn,
+};

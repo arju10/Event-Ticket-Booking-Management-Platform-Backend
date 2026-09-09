@@ -10,5 +10,9 @@ export const notificationRoutes = router;
 // Mounted at /notifications for the two PATCH routes
 const flatRouter = Router();
 flatRouter.patch("/:id/read", authenticate, notificationController.markAsRead);
-flatRouter.patch("/read-all", authenticate, notificationController.markAllAsRead);
+flatRouter.patch(
+  "/read-all",
+  authenticate,
+  notificationController.markAllAsRead,
+);
 export const notificationFlatRoutes = flatRouter;

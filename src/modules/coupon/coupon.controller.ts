@@ -9,7 +9,7 @@ const validateCoupon = catchAsync(async (req: Request, res: Response) => {
     req.user!.id,
     req.body.eventId,
     req.body.ticketTierId,
-    req.body.quantity
+    req.body.quantity,
   );
   sendSuccess(res, 200, "Coupon is valid", result);
 });

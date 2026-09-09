@@ -4,10 +4,10 @@ Supabase gives you a hosted PostgreSQL database in front of a connection pooler 
 
 ## 1. Why two connection strings?
 
-| | Used for | Who uses it |
-|---|---|---|
-| **Pooled connection** (`DATABASE_URL`) | Everyday queries while the app is running | `src/config/db.ts`, at runtime |
-| **Direct connection** (`DIRECT_URL`) | Schema migrations, `prisma studio` | `prisma.config.ts`, via the Prisma CLI |
+|                                        | Used for                                  | Who uses it                            |
+| -------------------------------------- | ----------------------------------------- | -------------------------------------- |
+| **Pooled connection** (`DATABASE_URL`) | Everyday queries while the app is running | `src/config/db.ts`, at runtime         |
+| **Direct connection** (`DIRECT_URL`)   | Schema migrations, `prisma studio`        | `prisma.config.ts`, via the Prisma CLI |
 
 Supabase's pooler (Supavisor, in "transaction mode") is great for the high connection churn of a running API, but it **doesn't support the session-level Postgres features Prisma's migration engine needs** (like advisory locks). So migrations have to bypass the pooler and hit the database directly, while your actual app traffic should go through the pooler so you don't exhaust Postgres's connection limit. This split is exactly why the project has two env vars instead of one.
 
@@ -61,9 +61,9 @@ This also uses `DIRECT_URL` (again via `prisma.config.ts`) and gives you a brows
 
 ## Common issues
 
-| Symptom | Likely cause |
-|---|---|
-| `prepared statement "sX" already exists` | Missing `?pgbouncer=true` on `DATABASE_URL` |
-| Migrations hang or time out | You accidentally put the pooled (6543) URL in `DIRECT_URL` instead of the direct (5432) one |
-| `password authentication failed` | Using your Supabase *account* password instead of the *database* password you set at project creation (resettable from Project Settings → Database) |
-| Works locally, fails when deployed | Some hosts (e.g. certain serverless platforms) need `connection_limit=1` appended to `DATABASE_URL` to avoid exhausting Supavisor's pool across many concurrent function invocations |
+| Symptom                                  | Likely cause                                                                                                                                                                         |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `prepared statement "sX" already exists` | Missing `?pgbouncer=true` on `DATABASE_URL`                                                                                                                                          |
+| Migrations hang or time out              | You accidentally put the pooled (6543) URL in `DIRECT_URL` instead of the direct (5432) one                                                                                          |
+| `password authentication failed`         | Using your Supabase _account_ password instead of the _database_ password you set at project creation (resettable from Project Settings → Database)                                  |
+| Works locally, fails when deployed       | Some hosts (e.g. certain serverless platforms) need `connection_limit=1` appended to `DATABASE_URL` to avoid exhausting Supavisor's pool across many concurrent function invocations |

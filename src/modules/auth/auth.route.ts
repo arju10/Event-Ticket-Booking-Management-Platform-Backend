@@ -13,11 +13,35 @@ import {
 
 const router = Router();
 
-router.post("/register", authLimiter, validateRequest(registerSchema), authController.register);
-router.post("/login", authLimiter, validateRequest(loginSchema), authController.login);
-router.post("/refresh-token", validateRequest(refreshTokenSchema), authController.refreshToken);
+router.post(
+  "/register",
+  authLimiter,
+  validateRequest(registerSchema),
+  authController.register,
+);
+router.post(
+  "/login",
+  authLimiter,
+  validateRequest(loginSchema),
+  authController.login,
+);
+router.post(
+  "/refresh-token",
+  validateRequest(refreshTokenSchema),
+  authController.refreshToken,
+);
 router.post("/logout", authenticate, authController.logout);
-router.post("/forgot-password", authLimiter, validateRequest(forgotPasswordSchema), authController.forgotPassword);
-router.post("/reset-password", authLimiter, validateRequest(resetPasswordSchema), authController.resetPassword);
+router.post(
+  "/forgot-password",
+  authLimiter,
+  validateRequest(forgotPasswordSchema),
+  authController.forgotPassword,
+);
+router.post(
+  "/reset-password",
+  authLimiter,
+  validateRequest(resetPasswordSchema),
+  authController.resetPassword,
+);
 
 export const authRoutes = router;

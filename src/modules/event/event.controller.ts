@@ -39,7 +39,11 @@ const updateEvent = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateEventStatus = catchAsync(async (req: Request, res: Response) => {
-  const event = await eventService.updateEventStatus(req.params.id, req.body.status, req.user!.id);
+  const event = await eventService.updateEventStatus(
+    req.params.id,
+    req.body.status,
+    req.user!.id,
+  );
   sendSuccess(res, 200, "Event status updated successfully", event);
 });
 
@@ -48,4 +52,11 @@ const deleteEvent = catchAsync(async (req: Request, res: Response) => {
   res.status(204).send();
 });
 
-export const eventController = { createEvent, listEvents, getEvent, updateEvent, updateEventStatus, deleteEvent };
+export const eventController = {
+  createEvent,
+  listEvents,
+  getEvent,
+  updateEvent,
+  updateEventStatus,
+  deleteEvent,
+};
