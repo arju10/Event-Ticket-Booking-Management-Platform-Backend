@@ -1,15 +1,3 @@
-/**
- * Fires N simultaneous booking requests against a single ticket tier to prove
- * the checkout transaction (booking.service.ts) never oversells.
- *
- * Usage (against the seeded VIP tier, which has quantity=5):
- *   npx ts-node scripts/concurrency-test.ts
- *
- * Expected result: exactly 5 requests succeed (201), the rest fail with
- * 409 INSUFFICIENT_TICKETS — never more than 5 successes, regardless of
- * how many concurrent requests are fired.
- */
-
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:5000/api/v1";
 const TICKET_TIER_ID = process.env.TICKET_TIER_ID ?? "seed-tier-vip"; // quantity = 5 in the seed
 const EVENT_SLUG_LOOKUP_NOTE =

@@ -2,7 +2,7 @@ import { prisma } from "../../config/db";
 import { ApiError } from "../../utils/ApiError";
 import { comparePassword, hashPassword } from "../../utils/password";
 import { cloudinary } from "../../config/cloudinary";
-import { Prisma } from "../../generated/prisma";
+import { Prisma } from "../../generated/prisma/client";
 import { UpdateMeInput } from "./user.interface";
 
 const PROFILE_SELECT = {

@@ -1,6 +1,6 @@
 import { prisma } from "../../config/db";
 import { buildPaginationMeta, parsePagination } from "../../types/common.types";
-import { Prisma } from "../../generated/prisma";
+import { Prisma } from "../../generated/prisma/client";
 
 async function listNotifications(
   userId: string,

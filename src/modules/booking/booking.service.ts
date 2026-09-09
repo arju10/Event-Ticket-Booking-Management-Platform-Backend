@@ -7,7 +7,7 @@ import { validateAndPriceCoupon } from "../coupon/coupon.service";
 import { getRefundPercent, BOOKING_INCLUDE } from "./booking.constant";
 import { CreateBookingInput } from "./booking.interface";
 import { env } from "../../config/env";
-import { Prisma } from "../../generated/prisma";
+import { Prisma } from "../../generated/prisma/client";
 import { offerNextWaitlistEntry } from "../waitlist/waitlist.service";
 
 interface TierRow {
@@ -43,7 +43,7 @@ async function getBookingEventOwnerId(
 }
 
 // ============================================================
-// CREATE BOOKING — the concurrency-critical checkout transaction (spec 8.1)
+// CREATE BOOKING — the concurrency-critical checkout transaction
 // ============================================================
 async function createBooking(
   eventId: string,

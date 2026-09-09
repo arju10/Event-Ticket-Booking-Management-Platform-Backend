@@ -1,6 +1,3 @@
-// Refund policy — platform-wide, fixed tiers (spec 8.3). Percentages are of
-// finalAmount. Event.allowRefund=false overrides all of this to 0% regardless
-// of timing.
 export const REFUND_POLICY = [
   { minHoursBeforeStart: 24 * 7, refundPercent: 100 },
   { minHoursBeforeStart: 24, refundPercent: 50 },

@@ -21,11 +21,7 @@ app.use(
   }),
 );
 
-// IMPORTANT: the Stripe webhook route needs the RAW request body to verify
-// the signature, so it is registered — with its own express.raw() parser —
-// BEFORE the global express.json() below. Express matches routes in
-// registration order, so this path is fully handled here and never reaches
-// the JSON parser.
+
 app.use(`/api/${env.apiVersion}/payments`, paymentWebhookRoute);
 
 app.use(express.json());

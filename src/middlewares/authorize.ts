@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { UserRole } from "../generated/prisma";
+import { UserRole } from "../generated/prisma/client";
 import { ApiError } from "../utils/ApiError";
 
 // Role gate. Must run after `authenticate`.

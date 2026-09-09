@@ -1,7 +1,5 @@
 import rateLimit from "express-rate-limit";
 
-// express-rate-limit v7 defaults its response to a plain string; we override
-// with `handler` so rate-limit rejections still match the standard envelope.
 function makeLimiter(windowMs: number, max: number, message: string) {
   return rateLimit({
     windowMs,

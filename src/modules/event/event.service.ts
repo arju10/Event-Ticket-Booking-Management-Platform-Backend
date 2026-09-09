@@ -3,7 +3,7 @@ import { ApiError } from "../../utils/ApiError";
 import { generateSlug } from "../../utils/generateCodes";
 import { buildPaginationMeta, parsePagination } from "../../types/common.types";
 import { writeAuditLog } from "../../lib/audit";
-import { Prisma } from "../../generated/prisma";
+import { Prisma } from "../../generated/prisma/client";
 import {
   EventListFilters,
   CreateEventInput,

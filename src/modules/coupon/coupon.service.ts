@@ -1,4 +1,4 @@
-import { Prisma } from "../../generated/prisma";
+import { Prisma } from "../../generated/prisma/client";
 import { ApiError } from "../../utils/ApiError";
 import { prisma } from "../../config/db";
 import { writeAuditLog } from "../../lib/audit";

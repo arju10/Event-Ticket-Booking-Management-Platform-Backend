@@ -1,5 +1,5 @@
 import { prisma } from "../config/db";
-import { AuditAction, Prisma } from "../generated/prisma";
+import { AuditAction, Prisma } from "../generated/prisma/client";
 
 interface WriteAuditLogInput {
   userId: string;
@@ -13,9 +13,6 @@ interface WriteAuditLogInput {
   userAgent?: string;
 }
 
-// Fire-and-forget audit trail writer. Accepts an optional Prisma transaction
-// client (`tx`) so a log entry can be written atomically alongside the state
-// change it describes, or `prisma` directly for a standalone write.
 export async function writeAuditLog(
   input: WriteAuditLogInput,
   client: Prisma.TransactionClient | typeof prisma = prisma,

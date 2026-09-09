@@ -2,8 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import { AnyZodObject, ZodError } from "zod";
 import { ApiError } from "../utils/ApiError";
 
-// Validates { body, query, params } against a Zod schema, replacing the
-// request pieces with the parsed (and type-coerced) result on success.
 export function validateRequest(schema: AnyZodObject) {
   return (req: Request, _res: Response, next: NextFunction) => {
     try {
