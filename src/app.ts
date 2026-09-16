@@ -21,7 +21,6 @@ app.use(
   }),
 );
 
-
 app.use(`/api/${env.apiVersion}/payments`, paymentWebhookRoute);
 
 app.use(express.json());
@@ -29,13 +28,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(generalLimiter);
 
 app.get("/health", (req: Request, res: Response) => {
-  res
-    .status(200)
-    .json({
-      success: true,
-      message: "OK",
-      data: { timestamp: new Date().toISOString() },
-    });
+  res.status(200).json({
+    success: true,
+    message: "OK",
+    data: { timestamp: new Date().toISOString() },
+  });
 });
 
 app.use(`/api/${env.apiVersion}`, apiRoutes);

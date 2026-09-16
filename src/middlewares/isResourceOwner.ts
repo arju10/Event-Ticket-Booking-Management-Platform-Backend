@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/ApiError";
 import { catchAsync } from "../utils/catchAsync";
 
-
 export function isResourceOwner(
   getOwnerId: (req: Request) => Promise<string | null>,
 ) {
