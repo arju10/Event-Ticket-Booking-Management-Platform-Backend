@@ -6,6 +6,17 @@ This README is the single entry point for understanding the whole project — wh
 
 ---
 
+Postman Colelction:  https://www.postman.com/speeding-eclipse-199364/workspace/event-booking-platform/collection/15474628-61379b36-a23c-4d8f-b0f4-b267cf95b9bd?action=share&creator=15474628
+
+
+Backend Live Link: 
+
+Frontend Live Link: Comming soon
+
+Frontend github Link: Comming soon
+
+---
+
 ## Table of Contents
 
 1. [What This Project Does](#1-what-this-project-does)
