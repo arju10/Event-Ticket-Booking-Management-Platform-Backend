@@ -10,13 +10,15 @@
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
     "typecheck": "tsc --noEmit",
-    "build": "tsc --noEmit",
+    "build": "tsup",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
+    "prisma:deploy": "prisma migrate deploy",
     "format": "prettier --write .",
     "seed": "tsx prisma/seed.ts",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
@@ -46,6 +48,7 @@
     "@types/pg": "^8.11.10",
     "prettier": "^3.9.6",
     "prisma": "^7.0.0",
+    "tsup": "^8.5.1",
     "tsx": "^4.19.0",
     "typescript": "^5.9.0"
   }
