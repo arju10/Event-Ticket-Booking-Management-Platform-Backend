@@ -50,13 +50,11 @@ describe("POST /api/v1/auth/register validation", () => {
   });
 
   it("rejects a password missing the required complexity rules", async () => {
-    const res = await request(app)
-      .post("/api/v1/auth/register")
-      .send({
-        email: "valid@example.com",
-        password: "alllowercase1",
-        name: "Test User",
-      });
+    const res = await request(app).post("/api/v1/auth/register").send({
+      email: "valid@example.com",
+      password: "alllowercase1",
+      name: "Test User",
+    });
 
     expect(res.status).toBe(400);
     const passwordError = res.body.errors.find(
@@ -66,14 +64,12 @@ describe("POST /api/v1/auth/register validation", () => {
   });
 
   it("rejects an attempt to self-register as ADMIN", async () => {
-    const res = await request(app)
-      .post("/api/v1/auth/register")
-      .send({
-        email: "wannabe-admin@example.com",
-        password: "ValidPass123!",
-        name: "Test User",
-        role: "ADMIN",
-      });
+    const res = await request(app).post("/api/v1/auth/register").send({
+      email: "wannabe-admin@example.com",
+      password: "ValidPass123!",
+      name: "Test User",
+      role: "ADMIN",
+    });
 
     expect(res.status).toBe(400);
   });

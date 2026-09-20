@@ -70,7 +70,21 @@ async function main() {
       maxTicketsPerUser: 4,
     },
   });
-
+  await prisma.ticketTier.upsert({
+    where: { id: "seed-tier-general" },
+    update: {},
+    create: {
+      id: "seed-tier-general",
+      eventId: event.id,
+      name: "General",
+      description: "Standard admission",
+      price: 300,
+      quantity: 100,
+      minPurchase: 1,
+      maxPurchase: 4,
+      includes: [],
+    },
+  });
   await prisma.ticketTier.upsert({
     where: { id: "seed-tier-early-bird" },
     update: {},
@@ -125,7 +139,12 @@ async function main() {
   console.log(
     `  Organizer: organizer@example.com / Password123! (owns "${event.title}")`,
   );
+
   console.log(`  Attendee:  attendee@example.com / Password123!`);
+  console.log(`  Coupon:    EARLY50 (50% off, min purchase 500)`);
+  console.log(
+    `  Tiers:     General (৳300, qty 100), Early Bird (৳500, qty 50), VIP (৳2000, qty 5)`,
+  );
   console.log(`  Coupon:    EARLY50 (50% off, min purchase 500)`);
 }
 

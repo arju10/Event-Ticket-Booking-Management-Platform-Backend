@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Event Ticket Booking & Management Platform",
-    "description": "Full API collection for the Event Ticket Booking & Management Platform. Covers all 44 endpoints from docs/requirements.md.\n\nHOW TO USE:\n1. Import this collection AND make sure your API is running (`npm run dev`) with `npm run seed` already applied.\n2. Set the `baseUrl` collection variable if your server isn't on the default http://localhost:5000/api/v1.\n3. Run folders 01 through 11 in order (top to bottom) -- either manually or via Collection Runner -- for a complete happy-path walkthrough. Each request's Tests tab automatically captures IDs/tokens it returns (accessToken, eventId, ticketTierId, bookingId, paymentId, etc.) into collection variables, so nothing needs to be copy-pasted by hand.\n4. Folder 12 contains destructive/role-changing requests (cancel, suspend, role change, delete) -- run these last, and only if you want to exercise those flows.\n\nNOTE: 'Mock Confirm Payment' in folder 07 only works when STRIPE_SECRET_KEY is left blank in your .env (the default for local dev) -- it simulates a successful payment webhook so you can exercise the full booking lifecycle without real Stripe credentials.",
+    "description": "Full API collection for the Event Ticket Booking & Management Platform. Covers all endpoints from docs/requirements.md, including GET /users/waitlist (an attendee's own pending waitlist entries).\n\nHOW TO USE:\n1. Import this collection AND make sure your API is running (`npm run dev`) with `npm run seed` already applied.\n2. Set the `baseUrl` collection variable if your server isn't on the default http://localhost:5000/api/v1.\n3. ALWAYS start with '01 - Auth > Login Attendee/Organizer/Admin (seeded)'. These log into the FIXED accounts created by `npm run seed`, so re-running the collection (e.g. for re-recording) always gives you the same identity and the same booking/notification history -- nothing silently switches out from under you.\n4. The two 'Register ... (demo only)' requests are safe to run at any point -- they capture into separate demo* variables and never touch the main attendeeAccessToken/organizerAccessToken your other requests use.\n5. Run folders 01 through 11 in order (top to bottom) for a complete happy-path walkthrough. Every request's Tests tab automatically captures IDs/tokens into collection variables -- nothing needs to be copy-pasted by hand.\n6. Folder 12 contains destructive/role-changing requests (cancel, suspend, role change, delete) -- run these last, and only if you want to exercise those flows.\n\nTROUBLESHOOTING 'notifications aren't showing up': this almost always means either (a) Mock Confirm Payment returned 422 because the booking's 15-minute PENDING hold expired -- create a new booking and confirm it promptly, or (b) you re-ran a Register request or otherwise switched identity mid-flow -- re-run Login Attendee to get back to the account that actually owns the booking.\n\nNOTE: 'Mock Confirm Payment' in folder 07 only works when STRIPE_SECRET_KEY is left blank in your .env (the default for local dev) -- it simulates a successful payment webhook so you can exercise the full booking lifecycle without real Stripe credentials.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -26,11 +26,6 @@
       "type": "string"
     },
     {
-      "key": "attendeeEmail",
-      "value": "",
-      "type": "string"
-    },
-    {
       "key": "organizerAccessToken",
       "value": "",
       "type": "string"
@@ -42,11 +37,6 @@
     },
     {
       "key": "organizerId",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "organizerEmail",
       "value": "",
       "type": "string"
     },
@@ -66,6 +56,26 @@
       "type": "string"
     },
     {
+      "key": "demoAttendeeAccessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "demoAttendeeId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "demoOrganizerAccessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "demoOrganizerId",
+      "value": "",
+      "type": "string"
+    },
+    {
       "key": "resetToken",
       "value": "",
       "type": "string"
@@ -77,6 +87,11 @@
     },
     {
       "key": "eventSlug",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "generalTicketTierId",
       "value": "",
       "type": "string"
     },
@@ -146,7 +161,7 @@
       "name": "01 - Auth",
       "item": [
         {
-          "name": "Register Attendee",
+          "name": "Login Attendee (seeded)",
           "request": {
             "method": "POST",
             "header": [
@@ -156,14 +171,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/auth/register",
+              "raw": "{{baseUrl}}/auth/login",
               "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
+              "path": ["auth", "login"]
             },
-            "description": "Captures attendeeAccessToken, attendeeRefreshToken, attendeeId, attendeeEmail automatically.",
+            "description": "PRIMARY identity source for the rest of this collection. Uses the fixed seeded account (from `npm run seed`) so re-running the collection always logs into the SAME attendee -- your bookingId/notifications stay consistent across runs. Captures attendeeAccessToken, attendeeRefreshToken, attendeeId.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"attendee_{{$timestamp}}@example.com\",\n  \"password\": \"TestPass123!\",\n  \"name\": \"Attendee One\",\n  \"phone\": \"+8801700000001\",\n  \"role\": \"ATTENDEE\"\n}",
+              "raw": "{\n  \"email\": \"attendee@example.com\",\n  \"password\": \"Password123!\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -178,16 +193,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status code is one of [201]\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([201]);",
+                  "pm.test(\"Status code is one of [200]\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200]);",
                   "});",
-                  "if (pm.response.code === 201) {",
+                  "if (pm.response.code === 200) {",
                   "    const res = pm.response.json();",
                   "    pm.collectionVariables.set(\"attendeeAccessToken\", res.data.accessToken);",
                   "    pm.collectionVariables.set(\"attendeeRefreshToken\", res.data.refreshToken);",
                   "    pm.collectionVariables.set(\"attendeeId\", res.data.user.id);",
-                  "    pm.collectionVariables.set(\"attendeeEmail\", res.data.user.email);",
-                  "    console.log(\"Captured attendeeAccessToken, attendeeRefreshToken, attendeeId, attendeeEmail\");",
+                  "    console.log(\"Logged in as attendee:\", res.data.user.email);",
                   "}"
                 ]
               }
@@ -195,7 +209,7 @@
           ]
         },
         {
-          "name": "Register Organizer",
+          "name": "Login Organizer (seeded)",
           "request": {
             "method": "POST",
             "header": [
@@ -205,14 +219,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/auth/register",
+              "raw": "{{baseUrl}}/auth/login",
               "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
+              "path": ["auth", "login"]
             },
-            "description": "Captures organizerAccessToken, organizerRefreshToken, organizerId, organizerEmail automatically.",
+            "description": "PRIMARY identity source. Captures organizerAccessToken, organizerRefreshToken, organizerId.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"organizer_{{$timestamp}}@example.com\",\n  \"password\": \"TestPass123!\",\n  \"name\": \"Tech Corp Test\",\n  \"phone\": \"+8801700000002\",\n  \"role\": \"ORGANIZER\"\n}",
+              "raw": "{\n  \"email\": \"organizer@example.com\",\n  \"password\": \"Password123!\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -227,16 +241,15 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status code is one of [201]\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([201]);",
+                  "pm.test(\"Status code is one of [200]\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200]);",
                   "});",
-                  "if (pm.response.code === 201) {",
+                  "if (pm.response.code === 200) {",
                   "    const res = pm.response.json();",
                   "    pm.collectionVariables.set(\"organizerAccessToken\", res.data.accessToken);",
                   "    pm.collectionVariables.set(\"organizerRefreshToken\", res.data.refreshToken);",
                   "    pm.collectionVariables.set(\"organizerId\", res.data.user.id);",
-                  "    pm.collectionVariables.set(\"organizerEmail\", res.data.user.email);",
-                  "    console.log(\"Captured organizerAccessToken, organizerRefreshToken, organizerId, organizerEmail\");",
+                  "    console.log(\"Logged in as organizer:\", res.data.user.email);",
                   "}"
                 ]
               }
@@ -258,7 +271,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["auth", "login"]
             },
-            "description": "Uses the admin account created by `npm run seed`. Admins cannot self-register.",
+            "description": "Admins cannot self-register -- this is the only way to get an admin session.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Password123!\"\n}",
@@ -284,7 +297,107 @@
                   "    pm.collectionVariables.set(\"adminAccessToken\", res.data.accessToken);",
                   "    pm.collectionVariables.set(\"adminRefreshToken\", res.data.refreshToken);",
                   "    pm.collectionVariables.set(\"adminId\", res.data.user.id);",
-                  "    console.log(\"Captured adminAccessToken, adminRefreshToken, adminId\");",
+                  "    console.log(\"Logged in as admin:\", res.data.user.email);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register Attendee (demo only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Demonstrates the register endpoint with a throwaway random user. Captures into demoAttendeeAccessToken/demoAttendeeId, NOT attendeeAccessToken -- safe to run at any point without breaking the rest of the collection.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo-attendee_{{$timestamp}}@example.com\",\n  \"password\": \"TestPass123!\",\n  \"name\": \"Demo Attendee\",\n  \"phone\": \"+8801700000001\",\n  \"role\": \"ATTENDEE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is one of [201]\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201]);",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "    const res = pm.response.json();",
+                  "    // Captured into SEPARATE demo* variables on purpose -- this does NOT",
+                  "    // overwrite attendeeAccessToken, so the rest of the collection keeps",
+                  "    // working against the seeded attendee even if you run this. Re-running",
+                  "    // this endpoint mid-flow used to silently switch \"who you are\" for",
+                  "    // every request after it, which is what caused notifications to look",
+                  "    // like they \"weren't working\" -- they were just going to a different user.",
+                  "    pm.collectionVariables.set(\"demoAttendeeAccessToken\", res.data.accessToken);",
+                  "    pm.collectionVariables.set(\"demoAttendeeId\", res.data.user.id);",
+                  "    console.log(\"Demo-only registration -- does not affect the main attendee* variables used elsewhere in this collection.\");",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register Organizer (demo only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Same as above for the organizer role. Captures into demoOrganizerAccessToken/demoOrganizerId only.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo-organizer_{{$timestamp}}@example.com\",\n  \"password\": \"TestPass123!\",\n  \"name\": \"Demo Organizer\",\n  \"phone\": \"+8801700000002\",\n  \"role\": \"ORGANIZER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is one of [201]\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201]);",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "    const res = pm.response.json();",
+                  "    pm.collectionVariables.set(\"demoOrganizerAccessToken\", res.data.accessToken);",
+                  "    pm.collectionVariables.set(\"demoOrganizerId\", res.data.user.id);",
+                  "    console.log(\"Demo-only registration -- does not affect the main organizer* variables used elsewhere in this collection.\");",
                   "}"
                 ]
               }
@@ -381,6 +494,50 @@
           ]
         },
         {
+          "name": "Logout (Organizer)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{organizerAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{organizerRefreshToken}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is one of [200]\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Forgot Password",
           "request": {
             "method": "POST",
@@ -398,7 +555,7 @@
             "description": "Always returns 200 regardless of whether the email exists (anti-enumeration). Check the server console log for the reset token in dev.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{attendeeEmail}}\"\n}",
+              "raw": "{\n  \"email\": \"attendee@example.com\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -436,7 +593,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["auth", "reset-password"]
             },
-            "description": "Paste the reset token printed in the server console (from the Forgot Password call above) into the resetToken collection variable before running this.",
+            "description": "Paste the reset token printed in the server console (from Forgot Password) into the resetToken collection variable before running this. Changes the seeded attendee's password -- update Login Attendee's body afterward if you run this.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"token\": \"{{resetToken}}\",\n  \"newPassword\": \"NewTestPass123!\"\n}",
@@ -450,7 +607,7 @@
           "response": []
         }
       ],
-      "description": "Registration/login for all three roles. Run the first three requests first -- everything downstream depends on the tokens they capture."
+      "description": "Run 'Login Attendee', 'Login Organizer', and 'Login Admin' first, every time. These are the seeded accounts (from `npm run seed`) and are the ONLY requests that set the main attendeeAccessToken/organizerAccessToken/adminAccessToken variables the rest of the collection depends on. The two 'demo only' Register requests are safe to run anytime -- they capture into separate demo* variables and never touch your main session, specifically so you can show the register endpoint without breaking continuity mid-recording."
     },
     {
       "name": "02 - Users",
@@ -507,7 +664,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Attendee One Updated\",\n  \"phone\": \"+8801700000099\",\n  \"bio\": \"Testing via Postman\"\n}",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"phone\": \"+8801700000099\",\n  \"bio\": \"Testing via Postman\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -549,10 +706,10 @@
               "host": ["{{baseUrl}}"],
               "path": ["users", "change-password"]
             },
-            "description": "Uses the same password for old/new so re-running the collection doesn't lock you out. Change the values if you want to actually test a password change.",
+            "description": "Uses the same password for old/new so re-running the collection doesn't lock you out of the seeded account.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"currentPassword\": \"TestPass123!\",\n  \"newPassword\": \"TestPass123!\",\n  \"confirmNewPassword\": \"TestPass123!\"\n}",
+              "raw": "{\n  \"currentPassword\": \"Password123!\",\n  \"newPassword\": \"Password123!\",\n  \"confirmNewPassword\": \"Password123!\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -837,6 +994,56 @@
       "name": "04 - Ticket Tiers",
       "item": [
         {
+          "name": "Create Ticket Tier - General",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{organizerAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId}}/ticket-tiers",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}", "ticket-tiers"]
+            },
+            "description": "A plain, non-VIP/non-Early-Bird tier -- just a normal ticket, same endpoint as any other tier.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"General\",\n  \"description\": \"Standard admission\",\n  \"price\": 300,\n  \"quantity\": 100,\n  \"minPurchase\": 1,\n  \"maxPurchase\": 4,\n  \"includes\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is one of [201]\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201]);",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "    const res = pm.response.json();",
+                  "    pm.collectionVariables.set(\"generalTicketTierId\", res.data.id);",
+                  "    console.log(\"Captured generalTicketTierId =\", res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Create Ticket Tier - Early Bird",
           "request": {
             "method": "POST",
@@ -1060,6 +1267,51 @@
       "name": "06 - Bookings",
       "item": [
         {
+          "name": "Create Booking - General",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{attendeeAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/events/{{eventId}}/book",
+              "host": ["{{baseUrl}}"],
+              "path": ["events", "{{eventId}}", "book"]
+            },
+            "description": "Books a plain General-tier ticket -- no coupon, nothing special. Just the baseline booking flow.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ticketTierId\": \"{{generalTicketTierId}}\",\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is one of [200]\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Create Booking - Early Bird (+coupon)",
           "request": {
             "method": "POST",
@@ -1078,7 +1330,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["events", "{{eventId}}", "book"]
             },
-            "description": "This is the booking used for the rest of the happy path (payment -> check-in -> review). Captures bookingId + bookingNumber.",
+            "description": "This is the booking used for the rest of the happy path (payment -> check-in -> review -> notifications). Captures bookingId + bookingNumber. IMPORTANT: confirm it via '07 - Payments > Mock Confirm Payment' within 15 minutes, or the PENDING hold expires automatically.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"ticketTierId\": \"{{ticketTierId}}\",\n  \"quantity\": 1,\n  \"couponCode\": \"EARLY50\",\n  \"dietaryNeeds\": \"Vegetarian\"\n}",
@@ -1104,7 +1356,7 @@
                   "    pm.collectionVariables.set(\"bookingId\", res.data.booking.id);",
                   "    pm.collectionVariables.set(\"bookingNumber\", res.data.booking.bookingNumber);",
                   "    pm.collectionVariables.set(\"paymentUrl\", res.data.payment.paymentUrl);",
-                  "    console.log(\"Captured bookingId =\", res.data.booking.id);",
+                  "    console.log(\"Captured bookingId =\", res.data.booking.id, \"-- confirm this within 15 minutes via Mock Confirm Payment, or the hold expires.\");",
                   "}"
                 ]
               }
@@ -1303,7 +1555,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["payments", "mock-confirm", "{{bookingId}}"]
             },
-            "description": "Only works when STRIPE_SECRET_KEY is NOT set in .env (the default for local dev). Simulates a successful webhook: moves the booking to CONFIRMED and the tier's held units from reserved to sold. If you HAVE configured Stripe, open paymentUrl (captured from Create Booking) in a browser and pay with a Stripe test card instead."
+            "description": "Only works when STRIPE_SECRET_KEY is NOT set in .env (the default for local dev). Simulates a successful webhook: moves the booking to CONFIRMED and the tier's held units from reserved to sold, and creates a BOOKING_CONFIRMATION notification for the attendee. Returns 422 (not a silent no-op) if the booking's 15-minute PENDING hold already expired -- if you see that, go back and run Create Booking again first. If you HAVE configured Stripe, open paymentUrl (captured from Create Booking) in a browser and pay with a Stripe test card instead."
           },
           "response": [],
           "event": [
@@ -1312,9 +1564,14 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status code is one of [200]\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200]);",
-                  "});"
+                  "pm.test(\"Status code is 200 (or 422 if the 15-minute PENDING hold already expired)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 422]);",
+                  "});",
+                  "if (pm.response.code === 422) {",
+                  "    console.warn(\"Booking is no longer PENDING (likely expired) -- go back and run Create Booking again, then retry this quickly.\");",
+                  "} else {",
+                  "    console.log(\"Payment confirmed -- a BOOKING_CONFIRMATION notification was just created for the attendee. Check 10 - Notifications next.\");",
+                  "}"
                 ]
               }
             }
@@ -1407,6 +1664,38 @@
           ]
         },
         {
+          "name": "My Waitlist (Attendee)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{attendeeAccessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/waitlist",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "waitlist"]
+            },
+            "description": "The attendee's own pending/notified/expired waitlist entries across ALL events, with their queue position. This is the 'where do I stand in line' view -- distinct from the organizer-only event-wide view below."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is one of [200]\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Get Event Waitlist (Organizer)",
           "request": {
             "method": "GET",
@@ -1420,7 +1709,8 @@
               "raw": "{{baseUrl}}/events/{{eventId}}/waitlist",
               "host": ["{{baseUrl}}"],
               "path": ["events", "{{eventId}}", "waitlist"]
-            }
+            },
+            "description": "Organizer-only: every entry for this specific event, not just the caller's own."
           },
           "response": [],
           "event": [
@@ -1677,7 +1967,7 @@
                 }
               ]
             },
-            "description": "A BOOKING_CONFIRMATION notification is created automatically when Mock Confirm Payment (or a real Stripe webhook) succeeds."
+            "description": "A BOOKING_CONFIRMATION notification is created automatically when Mock Confirm Payment (or a real Stripe webhook) succeeds. If this list is empty: check that Mock Confirm Payment actually returned 200 (not 422 for an expired hold), and that you're still logged in as the SAME attendee who made the booking -- re-running 'Login Attendee' fixes the latter."
           },
           "response": [],
           "event": [
@@ -1695,7 +1985,7 @@
                   "        pm.collectionVariables.set(\"notificationId\", res.data.items[0].id);",
                   "        console.log(\"Captured notificationId =\", res.data.items[0].id);",
                   "    } else {",
-                  "        console.log(\"No notifications yet -- run this again after a booking is confirmed.\");",
+                  "        console.warn(\"No notifications found. Checklist: (1) did Mock Confirm Payment return 200, not 422? (2) are you still logged in as the SAME attendee who made the booking -- check attendeeId matches the booking owner.\");",
                   "    }",
                   "}"
                 ]
@@ -1959,7 +2249,7 @@
             "description": "A fresh booking used only for the Cancel Booking request below, so it doesn't disturb the bookingId used earlier for check-in/review.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"ticketTierId\": \"{{ticketTierId}}\",\n  \"quantity\": 1\n}",
+              "raw": "{\n  \"ticketTierId\": \"{{generalTicketTierId}}\",\n  \"quantity\": 1\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -2050,7 +2340,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["admin", "users", "{{attendeeId}}", "role"]
             },
-            "description": "WARNING: changes the seeded attendee's role. If you run this, subsequent ATTENDEE-only actions (booking, joining waitlist) will start failing with 403 for that user -- register a fresh attendee afterward if you need to keep testing the attendee flow.",
+            "description": "WARNING: changes the seeded attendee's role. Subsequent ATTENDEE-only actions will start failing with 403 for that user until you change it back or re-seed.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"role\": \"ORGANIZER\"\n}",
