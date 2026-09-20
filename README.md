@@ -8,7 +8,7 @@ This README is the single entry point for understanding the whole project — wh
 
 Postman Colelction: https://www.postman.com/speeding-eclipse-199364/workspace/event-booking-platform/collection/15474628-61379b36-a23c-4d8f-b0f4-b267cf95b9bd?action=share&creator=15474628
 
-Backend Live Link:
+Backend Live Link: https://event-ticket-booking-management-pla.vercel.app/
 
 Frontend Live Link: Comming soon
 

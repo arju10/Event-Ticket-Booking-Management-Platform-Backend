@@ -3554,6 +3554,13 @@ app.use(`/api/${env.apiVersion}/payments`, paymentWebhookRoute);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(generalLimiter);
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Server is running",
+    data: { timestamp: (/* @__PURE__ */ new Date()).toISOString() }
+  });
+});
 app.get("/health", (req, res) => {
   res.status(200).json({
     success: true,

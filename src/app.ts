@@ -27,6 +27,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(generalLimiter);
 
+// Check server status
+app.get("/", (req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    message: "Server is running",
+    data: { timestamp: new Date().toISOString() },
+  });
+});
+
+// Check server health
 app.get("/health", (req: Request, res: Response) => {
   res.status(200).json({
     success: true,
