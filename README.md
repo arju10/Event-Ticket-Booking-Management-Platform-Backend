@@ -10,10 +10,9 @@ Postman Colelction: https://www.postman.com/speeding-eclipse-199364/workspace/ev
 
 Backend Live Link: https://event-ticket-booking-management-pla.vercel.app/
 
-Frontend Live Link: Comming soon
+Frontend Live Link: https://event-ticket-booking-management-pla-six.vercel.app/
 
-Frontend github Link: Comming soon
-
+Frontend github Link:  https://github.com/arju10/Event-Ticket-Booking-Management-Platform
 ---
 
 ## Table of Contents
